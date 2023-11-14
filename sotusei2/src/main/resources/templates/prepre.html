@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出発地点と目的地の検索</title>
+    <style>
+		div {
+  width: 100%;
+  padding: 8px 16px;
+  margin: 16px auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-top: 8px;
+}
+
+button {
+  width: 50%;
+  height: 2.5em;
+  margin: 8px auto;
+  padding: 4px 0;
+  border-radius: 4px;
+  background-color: blue;
+  color: white;
+}
+
+button:hover {
+  opacity: .7;
+}
+	</style>
+</head>
+<body>
+     <form action="/prepre" method="post">
+        <div class="search-container">
+            <label for="departure">出発地点:</label>
+            <input type="text" id="departure" name="departure">
+        </div>
+
+ <div>
+  <button>入力欄を増やす</button>
+  <label>連絡事項：<input type="text"></label>
+</div>
+    </form>
+    <script>
+		document.querySelector('button').addEventListener('click', () => {
+  const newForm = document.createElement('input');
+  newForm.type = 'text';
+
+  const newLabel = document.createElement('label');
+  newLabel.textContent = '連絡事項：';
+
+  newLabel.appendChild(newForm);
+  document.querySelector('div').appendChild(newLabel);
+});
+		</script>
+
+        <div class="search-container">
+            <label for="destination">目的地:</label>
+            <input type="text" id="destination" name="destination">
+            <input type="submit" value="検索">
+        </div>
+    </form>
+</body>
+</html>
