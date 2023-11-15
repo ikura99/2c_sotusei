@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>検索結果表示</title>
+<style>
+  .tabs {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 5px 20px;
+    background-color: #f4f4f4;
+    cursor: pointer;
+  }
+
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+</style>
+</head>
+<body>
+  <ul class="tabs">
+    <li class="tab" onclick="showTab(1)">徒歩</li>
+    <li class="tab" onclick="showTab(2)">車</li>
+    <li class="tab" onclick="showTab(3)">電車</li>
+    <li class="tab" onclick="showTab(4)">自転車</li>
+  </ul>
+
+  <div id="tab1" class="tab-content active">徒歩のコンテンツ</div>
+  <div id="tab2" class="tab-content">車のコンテンツ</div>
+  <div id="tab3" class="tab-content">電車のコンテンツ</div>
+  <div id="tab4" class="tab-content">自転車のコンテンツ</div>
+
+  <script>
+    function showTab(tabNumber) {
+      for (let i = 1; i <= 4; i++) {
+        const tabContent = document.getElementById('tab' + i);
+        tabContent.classList.remove('active');
+      }
+
+      const activeTabContent = document.getElementById('tab' + tabNumber);
+      activeTabContent.classList.add('active');
+    }
+  </script>
+</body>
+</html>
