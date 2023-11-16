@@ -25,13 +25,17 @@
         function initMap() {
             
             var result;
-            var address = start; // startValueの値を住所として使用
+            var address = start; // startの値を住所として使用
             var geocoder = new google.maps.Geocoder();
 
             geocoder.geocode({ address: address }, function(results, status) {
                 if (status === 'OK' && results[0]) {
                     result = results[0].geometry.location;
-                    alert(result);
+                   	alert(result);
+                   var Lat = result.lat();
+        		var Lng = result.lng();
+					alert(Lat);
+					alert(Lng);
                 }
             });
         }
