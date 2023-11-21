@@ -13,7 +13,7 @@
 <body>
  <script th:inline="javascript">
 		const  start = /*[[${ start}]]*/" start";
-        console.log( start);
+       
         alert( start);
  var script = document.createElement('script');
                 script.src = '//maps.google.com/maps/api/js?key=AIzaSyAWyBYY1MDDyQGdA6VN72X7QOHhwPh4I_o&callback=initMap';
@@ -30,11 +30,10 @@
 
             geocoder.geocode({ address: address }, function(results, status) {
                 if (status === 'OK' && results[0]) {
-                    result = results[0].geometry.location;
-                   	alert(result);
-                   var Lat = result.lat();
-        		var Lng = result.lng();
+					
+					var Lat = results[0].geometry.location.lat()
 					alert(Lat);
+					var Lng = results[0].geometry.location.lng()
 					alert(Lng);
                 }
             });

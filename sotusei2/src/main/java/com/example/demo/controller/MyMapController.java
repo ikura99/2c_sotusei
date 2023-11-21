@@ -17,16 +17,6 @@ public class MyMapController {
 
 	
 	
-	@RequestMapping(path = "/pre", method = RequestMethod.GET)
-	public String pre() {
-		return "renshuu";
-	}
-	@RequestMapping(path = "/pre2", method = RequestMethod.POST)
-	public String pre2() {
-		return "renshuu";
-	}
-	
-	
 	
 	@RequestMapping(path = "/prepre", method = RequestMethod.GET)
 	public String prepre() {
@@ -43,7 +33,7 @@ public class MyMapController {
 	//最初のページ
 		@RequestMapping(path = "/mymap2", method = RequestMethod.GET)
 		public String kari1() {
-			return "renshuu";
+			return "renshuu2";
 		}
 	
 	@RequestMapping(path = "/kaisi", method = RequestMethod.POST)
@@ -53,4 +43,31 @@ public class MyMapController {
 		return "renshuu3";
 		
 	}
+
+
+
+
+
+
+
+	@RequestMapping(path = "/mymap3", method = RequestMethod.GET)
+	public String karikari() {
+		return "renshuu2";
+	}
+
+@RequestMapping(path = "/kaisi3", method = RequestMethod.POST)
+public String karikari2(String start, String goal,Model model) {
+	model.addAttribute("start", start);	
+	model.addAttribute("goal", goal);	
+	System.out.println(start+goal);
+	return "renshuu4";
+	
+}
+
+
+
+
+
+
+
 }

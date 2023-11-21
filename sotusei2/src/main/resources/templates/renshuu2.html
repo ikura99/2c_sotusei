@@ -1,57 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Travel Modes in Directions</title>
-    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-
-    <link rel="stylesheet" type="text/css" href="./style.css" />
-    <script type="module" src="./index.js"></script>
-
-    <style>
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出発地点と目的地の検索</title>
+    
 </head>
 <body>
-    
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script>
-        var startValue;
-
-        // ここにAjaxリクエストとその後の処理を記述
-        $.ajax({
-            type: "POST",
-            url: "/kaisi",
-            success: function(data) {
-                // dataにはコントローラーからの応答が含まれる
-                console.log(data.start); // startの値をコンソールに表示
-				alert(data.start);
-                startValue = data.start;
-                
-                // ここでdata.startを使った他の処理を行うことができます
-
-                // Google Maps JavaScript APIを読み込んだ後にinitMap関数を呼び出す
-                var script = document.createElement('script');
-                script.src = '//maps.google.com/maps/api/js?key=AIzaSyAWyBYY1MDDyQGdA6VN72X7QOHhwPh4I_o&callback=initMap';
-                script.async = true; // スクリプトを非同期に読み込む
-                document.body.appendChild(script);
-            }
-        });
-    </script>
-
-    <script>
-        function initMap() {
-            
-            var result;
-            var address = startValue; // startValueの値を住所として使用
-            var geocoder = new google.maps.Geocoder();
-
-            geocoder.geocode({ address: address }, function(results, status) {
-                if (status === 'OK' && results[0]) {
-                    result = results[0].geometry.location;
-                    alert(result);
-                }
-            });
-        }
-    </script>
+   <form action="/kaisi3" method="post">
+    <h2>開始地点</h2>
+      <input type="text" name="start">
+      
+      <input type="submit" value="検索する">
+       
+    </form>
 </body>
 </html>
