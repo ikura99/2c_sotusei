@@ -1,33 +1,34 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>検索結果表示</title>
-<style>
-  .tabs {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>検索結果表示</title>
+  <style>
+    .tabs {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      font-size: 30px;
+    }
 
-  .tab {
-    flex: 1;
-    text-align: center;
-    padding: 5px 20px;
-    background-color: #f4f4f4;
-    cursor: pointer;
-  }
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 5px 20px;
+      background-color: #f4f4f4;
+      cursor: pointer;
+    }
 
-  .tab-content {
-    display: none;
-  }
+    .tab-content {
+      display: none;
+    }
 
-  .tab-content.active {
-    display: block;
-  }
-</style>
+    .tab-content.active {
+      display: block;
+    }
+  </style>
 </head>
 <body>
   <ul class="tabs">
@@ -38,19 +39,25 @@
   </ul>
 
   <div id="tab1" class="tab-content active">徒歩のコンテンツ</div>
-  <div id="tab2" class="tab-content">車のコンテンツ</div>
-  <div id="tab3" class="tab-content">電車のコンテンツ</div>
-  <div id="tab4" class="tab-content">自転車のコンテンツ</div>
+  <div id="tab2" class="tab-content 1">車のコンテンツ</div>
+  <div id="tab3" class="tab-content 2">電車のコンテンツ</div>
+  <div id="tab4" class="tab-content 3">自転車のコンテンツ</div>
 
   <script>
-    function showTab(tabNumber) {
+    function showTab(tabNumber) { 
+      // 選択されたタブのコンテンツを表示し、他のコンテンツを非表示にする
       for (let i = 1; i <= 4; i++) {
-        const tabContent = document.getElementById('tab' + i);
-        tabContent.classList.remove('active');
-      }
+        const tabContent = document.getElementById(`tab${i}`);
+        const tab = document.querySelector(`.tabs li:nth-child(${i})`);
 
-      const activeTabContent = document.getElementById('tab' + tabNumber);
-      activeTabContent.classList.add('active');
+        if (i === tabNumber) {
+          tabContent.classList.add('active');
+          tab.classList.add('active'); // タブにもactiveクラスを追加する場合
+        } else {
+          tabContent.classList.remove('active');
+          tab.classList.remove('active'); // タブにもactiveクラスを追加する場合
+        }
+      }
     }
   </script>
 </body>

@@ -1,40 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>出発地点と目的地の検索</title>
-    <style>
-         body {
-            display: grid;
-            place-items: center;
-            height: 60vh;
-            margin: 0;
-        }
-        .search-container input {
-            margin-right: 70px;
-        }
-        .spacer {
-            margin: 16px; 
-         }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>検索結果表示</title>
+  <style>
+    .tabs {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      font-size: 30px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 5px 20px;
+      background-color: #f4f4f4;
+      cursor: pointer;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <form action="検索の結果を表示するページのURL" method="get">
-        <div class="centered">
-        <div class="search-container">
-            <label for="departure">出発地点:</label>
-            <input type="text" id="departure" name="departure">
-        </div>
+  <ul class="tabs">
+    <li class="tab" onclick="showTab(1)">徒歩</li>
+    <li class="tab" onclick="showTab(2)">車</li>
+    <li class="tab" onclick="showTab(3)">電車</li>
+    <li class="tab" onclick="showTab(4)">自転車</li>
+  </ul>
 
-        <div class="spacer">
-        <div class="search-container">
-            <label for="destination">目的地:</label>
-            <input type="text" id="destination" name="destination">
-            <input type="submit" value="検索">
-        </div>
-        </div>
-        </div>
-    </form>
+  <div id="tab1" class="tab-content active">徒歩のコンテンツ</div>
+  <div id="tab2" class="tab-content 1">車のコンテンツ</div>
+  <div id="tab3" class="tab-content 2">電車のコンテンツ</div>
+  <div id="tab4" class="tab-content 3">自転車のコンテンツ</div>
+
+  <script>
+    function showTab(tabNumber) { 
+      // 選択されたタブのコンテンツを表示し、他のコンテンツを非表示にする
+      for (let i = 1; i <= 4; i++) {
+        const tabContent = document.getElementById(`tab${i}`);
+        const tab = document.querySelector(`.tabs li:nth-child(${i})`);
+
+        if (i === tabNumber) {
+          tabContent.classList.add('active');
+          tab.classList.add('active'); // タブにもactiveクラスを追加する場合
+        } else {
+          tabContent.classList.remove('active');
+          tab.classList.remove('active'); // タブにもactiveクラスを追加する場合
+        }
+      }
+    }
+  </script>
 </body>
 </html>
