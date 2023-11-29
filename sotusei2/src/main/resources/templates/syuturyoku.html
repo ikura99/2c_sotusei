@@ -27,7 +27,20 @@
 
     .tab-content.active {
       display: block;
+      font-size: 200%;
     }
+    
+    #map {
+    width: 750px;
+    height:200px;
+	}
+
+	#street{
+	width: 550px;
+    height:330px;
+	}
+		
+	
   </style>
 </head>
 <body>
@@ -38,10 +51,14 @@
     <li class="tab" onclick="showTab(4)">自転車</li>
   </ul>
 
-  <div id="tab1" class="tab-content active"><p th:text="${syutu}"></p><p th:text="${moku}"></p></div>
-  <div id="tab2" class="tab-content 1">車のコンテンツ</div>
-  <div id="tab3" class="tab-content 2">電車のコンテンツ</div>
-  <div id="tab4" class="tab-content 3">自転車のコンテンツ</div>
+  <div id="tab1" class="tab-content active"> &nbsp;&nbsp;千葉<br> &nbsp;&nbsp;&nbsp;↓<br>津田沼<br><img id="map" src="images/map.png" alt="マップ" width="200" height="250"><br>
+  <img id="street"  src="images/streetview.jpg" alt="ストリートビュー" width="200" height="300"></div>
+  <div id="tab2" class="tab-content 1">&nbsp;&nbsp;千葉<br> &nbsp;&nbsp;&nbsp;↓<br>津田沼<br><img id="map" src="images/map.png" alt="マップ" width="200" height="250"><br>
+  <img id="street"  src="images/streetview.jpg" alt="ストリートビュー" width="200" height="300"></div>
+  <div id="tab3" class="tab-content 2">&nbsp;&nbsp;千葉<br> &nbsp;&nbsp;&nbsp;↓<br>津田沼<br><img id="map" src="images/map.png" alt="マップ" width="200" height="250"><br>
+  <img id="street"  src="images/streetview.jpg" alt="ストリートビュー" width="200" height="300"></div>
+  <div id="tab4" class="tab-content 3">&nbsp;&nbsp;千葉<br> &nbsp;&nbsp;&nbsp;↓<br>津田沼<br><img id="map" src="images/map.png" alt="マップ" width="200" height="250"><br>
+  <img id="street"  src="images/streetview.jpg" alt="ストリートビュー" width="200" height="300"></div>
 
   <script>
     function showTab(tabNumber) { 
