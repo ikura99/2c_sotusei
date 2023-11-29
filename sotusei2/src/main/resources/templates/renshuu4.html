@@ -58,7 +58,7 @@ body {
  <script th:inline="javascript">
 		const  start = /*[[${ start}]]*/" start";
         const  goal = /*[[${ goal}]]*/" goal";
-        alert( start);
+     
  var script = document.createElement('script');
                 script.src = '//maps.google.com/maps/api/js?key=AIzaSyAWyBYY1MDDyQGdA6VN72X7QOHhwPh4I_o&callback=initMap';
                 script.async = true; // スクリプトを非同期に読み込む
@@ -69,6 +69,7 @@ body {
         function initMap() {
  
   var address = start;
+  
   var geocoder = new google.maps.Geocoder();
 
   geocoder.geocode({ address: address }, function (results, status) {
@@ -79,7 +80,9 @@ body {
       alert(Lng);
 
       calculateAndDisplayRoute(Lat, Lng);
-    }
+    }else{
+		alert("住所が正しくありません");
+	}
   });
 }
 
