@@ -5,64 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>出発地点と目的地の検索</title>
     <style>
-		div {
-  width: 100%;
-  padding: 8px 16px;
-  margin: 16px auto;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-}
+        div {
+            width: 100%;
+            padding: 8px 16px;
+            margin: 16px auto;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 中央寄せ */
+        }
 
-label {
-  margin-top: 8px;
-}
+        label {
+            margin-top: 8px;
+            display: flex;
+            align-items: center; /* 中央寄せ */
+        }
 
-button {
-  width: 50%;
-  height: 2.5em;
-  margin: 8px auto;
-  padding: 4px 0;
-  border-radius: 4px;
-  background-color: blue;
-  color: white;
-}
+        input {
+            margin-left: 8px; /* ラベルと入力フィールドの間隔 */
+        }
 
-button:hover {
-  opacity: .7;
-}
-	</style>
+        button {
+            width: 50%;
+            height: 2.5em;
+            margin-top: 8px; /* 適切な間隔 */
+            padding: 4px 0;
+            border-radius: 4px;
+            background-color: blue;
+            color: white;
+        }
+
+        button:hover {
+            opacity: .7;
+        }
+    </style>
 </head>
 <body>
-     <form action="/prepre" method="post">
-        <div class="search-container">
-            <label for="departure">出発地点:</label>
-            <input type="text" id="departure" name="departure">
-        </div>
-
- <div>
-  <button>入力欄を増やす</button>
-  <label>連絡事項：<input type="text"></label>
-</div>
-    </form>
+	<form id="myForm" action="/mymap3" method="post">
+    <div>
+		<h2>開始地点</h2>
+      <input type="text" name="start">
+        <label id="label1">中継地点(1)：<input type="text" name="intermediatePoint1"></label>
+        <button id="addButton">中継地点を増やす</button>
+          <h2>終了地点</h2>
+      <input type="text" name="goal">
+      <input type="submit" onclick="submitForm()" value="検索する">
+    </div>
+	
+</form>
     <script>
-		document.querySelector('button').addEventListener('click', () => {
-  const newForm = document.createElement('input');
-  newForm.type = 'text';
+        document.getElementById('addButton').addEventListener('click', () => {
+            const formCount = document.querySelectorAll('input').length + 1;
 
-  const newLabel = document.createElement('label');
-  newLabel.textContent = '連絡事項：';
+            const newForm = document.createElement('input');
+            newForm.type = 'text';
+            newForm.name = `intermediatePoint${formCount}`;
 
-  newLabel.appendChild(newForm);
-  document.querySelector('div').appendChild(newLabel);
-});
-		</script>
+            const newLabel = document.createElement('label');
+            newLabel.textContent = `中継地点(${formCount})：`;
+            newLabel.appendChild(newForm);
 
-        <div class="search-container">
-            <label for="destination">目的地:</label>
-            <input type="text" id="destination" name="destination">
-            <input type="submit" value="検索">
-        </div>
-    </form>
+            const div = document.querySelector('div');
+            div.insertBefore(newLabel, document.getElementById('addButton'));
+        });
+
+        function submitForm() {
+            const formData = new FormData(document.getElementById('myForm'));
+
+            fetch('/mymap3', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response from server:', data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
 </body>
 </html>
