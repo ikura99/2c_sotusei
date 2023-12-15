@@ -143,16 +143,18 @@ function calculateAndDisplayRoute(poss,poss2) {
 
   const selectedMode = document.getElementById("mode").value;
  
+ for(let i = 0; i < poss2.length; i++){
+	 waypts.push({
+        location: { lat: poss2[i].lat, lng: poss2[i].lng },
+        stopover: true,
+      });
+ }
+ 
   directionsService
     .route({
       origin: { lat: poss[0].lat, lng: poss[0].lng },//origin: { lat: Lat, lng: Lng },
       destination: { lat: poss[1].lat, lng: poss[1].lng },
-      waypoints: [
-  {
-    location: { lat: 35.6311577, lng: 139.883319 },
-    stopover: true,
-  }
-],//配列用に作り変える　配列はposs2
+      waypoints: waypts,//配列用に作り変える　配列はposs2
 
       travelMode: google.maps.TravelMode[selectedMode],
     })

@@ -124,7 +124,7 @@ function calculateAndDisplayRoute(poss) {
   });
 
   const selectedMode = document.getElementById("mode").value;
- 
+ const poss3 = []; // 新しい配列を作成
  
   directionsService
     .route({
@@ -140,6 +140,8 @@ function calculateAndDisplayRoute(poss) {
           // ルートの詳細情報にアクセス
     var route = response.routes[0];
 
+
+
     // 各セグメント（ステップ）にアクセス
     route.legs.forEach(function(leg) {
       leg.steps.forEach(function(step) {
@@ -147,6 +149,10 @@ function calculateAndDisplayRoute(poss) {
         console.log("ルートの指示:", step.instructions);
         console.log("ステップの開始地点:", step.start_location.lat(), step.start_location.lng());
         console.log("ステップの終了地点:", step.end_location.lat(), step.end_location.lng());
+        
+         // ステップの開始地点と終了地点をposs3に格納
+          poss3.push({ start: { lat: step.start_location.lat(), lng: step.start_location.lng() }, end: { lat: step.end_location.lat(), lng: step.end_location.lng() } });
+        
         console.log("ステップの所要時間:", step.duration.text);
         console.log("ステップの距離:", step.distance.text);
         // 他にも詳細情報が含まれています

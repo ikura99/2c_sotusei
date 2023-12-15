@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class MyMapController {
@@ -20,14 +21,33 @@ public class MyMapController {
 
 	
 	
-	
-	@RequestMapping(path = "/prepre", method = RequestMethod.GET)
+//今いじってる	
+	@RequestMapping(path = "/mymap2", method = RequestMethod.GET)
 	public String prepre() {
-		return "prepre";
+		return "prepre2";
 	}
-	@RequestMapping(path = "/prepre", method = RequestMethod.POST)
-	public String prepre_pos() {
-		return "prepre";
+	@RequestMapping(path = "/kaisi2", method = RequestMethod.POST)
+	public String prepre_pos(
+	    String start,
+	    String goal,
+	    @RequestParam(value = "relay[]", required = false) String[] relayPoints,
+	    Model model) {
+		//required = falseでrelayPointsの中身が無くてもエラーが起きないようにしている
+		model.addAttribute("start", start);	
+		model.addAttribute("goal", goal);	
+			
+		System.out.println(start);
+		System.out.println(goal);
+		
+		if (relayPoints != null) {
+			for (int i = 0; i < relayPoints.length; i++) {
+	            System.out.println("Relay Point " + (i + 1) + ": " + relayPoints[i]);
+	        }
+			model.addAttribute("relayPoints", relayPoints);
+	    }
+		
+	
+		return "renshuu3";
 	}
 	
 	
@@ -38,10 +58,11 @@ public class MyMapController {
 
 
 
-
+//失敗 中継地点の追加
+//一応残してる
 	@RequestMapping(path = "/mymap3", method = RequestMethod.GET)
 	public String karikari() {
-		return "renshuu2";
+		return "prepre";
 	}
 
 @RequestMapping(path = "/kaisi3", method = RequestMethod.POST)
@@ -55,6 +76,11 @@ public String karikari2(String start, String goal,Model model, @RequestBody Map<
 }
 
 
+
+
+
+//開始地点と終了地点の検索完成
+//いじらないやつ
 @RequestMapping(path = "/mymap4", method = RequestMethod.GET)
 public String karikari8888() {
 	return "renshuu6";
