@@ -67,10 +67,6 @@
 
         relayIndex++;
 
-        // Display the values in Relay array
-        //for (let i = 0; i < Relay.length; i++) {
-           // alert(`中継地点${i + 1}の値: ${Relay[i].value}`);
-        //}
     });
 
     document.getElementById('myForm').addEventListener('submit', function (event) {
@@ -80,6 +76,11 @@
     document.querySelectorAll('.relay-input').forEach((input, index) => {
         Relay[index].value = input.value;
     });
+    
+      // Relay配列の値を表示する
+    for (let i = 0; i < Relay.length; i++) {
+        alert(`中継地点${i + 1}の値: ${Relay[i].value}`);
+    }
 
     // 隠れた要素の作成
     Relay.forEach((relayInput, index) => {

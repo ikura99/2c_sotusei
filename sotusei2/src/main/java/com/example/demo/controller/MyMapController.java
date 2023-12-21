@@ -21,7 +21,8 @@ public class MyMapController {
 
 	
 	
-//今いじってる	
+//開始地点、中継地点、終了地点完成
+//いじらない
 	@RequestMapping(path = "/mymap2", method = RequestMethod.GET)
 	public String prepre() {
 		return "prepre2";
@@ -74,8 +75,6 @@ public String karikari2(String start, String goal,Model model, @RequestBody Map<
 	return "renshuu4";
 	
 }
-
-
 
 
 
