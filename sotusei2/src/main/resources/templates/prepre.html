@@ -12,23 +12,16 @@
             text-align: center;
             display: flex;
             flex-direction: column;
-            align-items: center; /* 中央寄せ */
         }
 
         label {
             margin-top: 8px;
-            display: flex;
-            align-items: center; /* 中央寄せ */
-        }
-
-        input {
-            margin-left: 8px; /* ラベルと入力フィールドの間隔 */
         }
 
         button {
             width: 50%;
             height: 2.5em;
-            margin-top: 8px; /* 適切な間隔 */
+            margin: 8px auto;
             padding: 4px 0;
             border-radius: 4px;
             background-color: blue;
@@ -41,69 +34,69 @@
     </style>
 </head>
 <body>
-    <form id="myForm" action="/kaisi3" method="post">
-        <div>
-            <h2>開始地点</h2>
-            <input type="text" name="start">
-            <label id="label1">中継地点(1)：<input type="text" name="intermediatePoint1"></label>
-            <button type="button" id="addButton">中継地点を増やす</button>
-            <h2>終了地点</h2>
-            <input type="text" name="goal">
-            <input type="submit" value="検索する">
-        </div>
-    </form>
-    <script>
-        document.getElementById('addButton').addEventListener('click', () => {
-            const formCount = document.querySelectorAll('input[name^="intermediatePoint"]').length + 1;
 
-            const newForm = document.createElement('input');
-            newForm.type = 'text';
-            newForm.name = `intermediatePoint${formCount}`;
+<form action="/kaisi5" method="post" id="myForm">
+    <h2>開始地点</h2>
+    <input type="text" name="start">
+    <div id="relayContainer">
+        <button id="addPointButton">中継地点を増やす</button>
+    </div>
+    <h2>終了地点</h2>
+    <input type="text" name="goal">
+    <input type="submit" value="検索する">
+</form>
 
-            const newLabel = document.createElement('label');
-            newLabel.textContent = `中継地点(${formCount})：`;
+<script>
+    const Relay = [];
+    let relayIndex = 1;
 
-            // 新しいinputに一意のIDを設定
-            const inputId = `intermediatePoint${formCount}`;
-            newForm.id = inputId;
-            newLabel.htmlFor = inputId;
+    document.getElementById('addPointButton').addEventListener('click', function (event) {
+        event.preventDefault();
 
-            newLabel.appendChild(newForm);
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.classList.add('relay-input');
 
-            const div = document.querySelector('div');
-            div.insertBefore(newLabel, document.querySelector('button'));
-        });
+        const newLabel = document.createElement('label');
+        newLabel.textContent = `中継地点(${relayIndex})：`;
+        newLabel.appendChild(newInput);
 
-        document.getElementById('myForm').addEventListener('submit', (event) => {
-            // イベントのデフォルトの動作を防ぐ（ページのリロードなど）
-            event.preventDefault();
+        document.getElementById('relayContainer').appendChild(newLabel);
 
-            const formData = new FormData(document.getElementById('myForm'));
+        Relay.push(newInput);
 
-            // FormDataからオブジェクトに変換
-            const formDataObject = {};
-            formData.forEach((value, key) => {
-                formDataObject[key] = value;
-            });
+        relayIndex++;
 
-            // JSON形式に変換
-            const jsonData = JSON.stringify(formDataObject);
+    });
 
-            fetch('/kaisi3', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: jsonData
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Response from server:', data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
-    </script>
+    document.getElementById('myForm').addEventListener('submit', function (event) {
+    event.preventDefault();//送信されないようにしている this.submit();で代わりに送信
+
+    // relay-inputから値を所得し、Relay配列に値を格納
+    document.querySelectorAll('.relay-input').forEach((input, index) => {
+        Relay[index].value = input.value;
+    });
+    
+
+    // 隠れた要素の作成
+    Relay.forEach((relayInput, index) => {
+        const hiddenInput = document.createElement('input');//input要素の作成
+        hiddenInput.type = 'hidden';//HTML画面に出ないようにしている
+        hiddenInput.name = 'relay[]'; //  @RequestParamアノテーションに一致するように名前を設定
+        hiddenInput.value = relayInput.value;
+        document.getElementById('myForm').appendChild(hiddenInput);
+        //document.getElementById('myForm')を使用して、HTML内の'id'が 'myForm'と設定されたフォーム要素にアクセスし、
+        //そのフォームに対して新しく作成した隠れた入力要素を追加します
+    });
+
+    
+    // 送信
+    this.submit();
+
+    // Relayの初期化
+    Relay.length = 0;
+    relayIndex = 1; // 配列の添え字の初期化(1に設定)
+});
+</script>
 </body>
-</html>
+</html>	

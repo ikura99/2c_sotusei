@@ -4,9 +4,6 @@
     <title>Travel Modes in Directions</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 
-    <link rel="stylesheet" type="text/css" href="./style.css" />
-    <script type="module" src="./index.js"></script>
-
     <style>
 		
 			/* 
@@ -58,7 +55,9 @@ body {
  <script th:inline="javascript">
 		const  start = /*[[${ start}]]*/" start";
         const  goal = /*[[${ goal}]]*/" goal";
-     const  formData = /*[[${ formData}]]*/" formData";
+    	var relay = /*[[${relayPoints}]]*/ null;
+    
+    
  var script = document.createElement('script');
                 script.src = '//maps.google.com/maps/api/js?key=AIzaSyAWyBYY1MDDyQGdA6VN72X7QOHhwPh4I_o&callback=initMap';
                 script.async = true; // スクリプトを非同期に読み込む
@@ -69,64 +68,99 @@ body {
         function initMap() {
   var poss = [];
   var poss2 = [];
+   //var relay = new Array("〒263-0031 千葉県千葉市稲毛区稲毛東３丁目１９","〒279-0031 千葉県浦安市舞浜１−１");
 
   var geocoder = new google.maps.Geocoder();
+//if文で動かす startの値が"現在地"なら現在地の取得
+//start が"現在地"でなければ else で geocoder.geocode の処理
 
-var address = start;
-  geocoder.geocode({ address: address }, function (results, status) {
+if(start === "現在地"){
+	navigator.geolocation.getCurrentPosition(
+  (position) => {
+    const pos = {
+      lat: position.coords.latitude,
+      lng: position.coords.longitude,
+    };
+     var Lat = pos.lat;
+    var Lng = pos.lng;
+     poss.push({ lat: Lat, lng: Lng });
+    console.log("開始地点1:", + Lat + ',' + Lng);
+  },
+  (error) => {
+    handleLocationError(true, infoWindow, map.getCenter());
+  }
+);
+	
+}else{
+
+  geocoder.geocode({ address: start }, function (results, status) {
     if (status === 'OK' && results[0]) {
       var Lat = results[0].geometry.location.lat();
       var Lng = results[0].geometry.location.lng();
-      alert("開始地点の" + Lat + Lng);
+      console.log("開始地点2:", + Lat + ',' + Lng);
 
       // calculateAndDisplayRoute(Lat, Lng);
       poss.push({ lat: Lat, lng: Lng });
 
-      // 2番目の住所を取得
-      var address = goal;
-      geocoder.geocode({ address: address }, function (results, status) {
+} else{
+      alert("開始地点の住所が正しくありません");
+    }
+  });
+}
+      // goalの住所の座標を取得
+      geocoder.geocode({ address: goal }, function (results, status) {
         if (status === 'OK' && results[0]) {
           var Lat = results[0].geometry.location.lat();
           var Lng = results[0].geometry.location.lng();
-          alert("終了地点の" + Lat + "," + Lng);
+          console.log("終了地点:", + Lat + ',' + Lng);
 
           // calculateAndDisplayRoute(Lat, Lng);
-          poss.push({ lat: Lat, lng: Lng })
+          poss.push({ lat: Lat, lng: Lng });
 
           // ここでcalculateAndDisplayRouteを呼び出す
-          calculateAndDisplayRoute(poss);
+          //calculateAndDisplayRoute(poss);
         } else {
           alert("終了地点の住所が正しくありません");
         }
       });
-    } else {
-      alert("開始地点の住所が正しくありません");
-    }
-  });
-  
-  addresses.forEach(function (formData) {
-	   address = formData;
-    geocoder.geocode({ address: address }, function (results, status) {
-        if (status === 'OK' && results[0]) {
-            // 緯度経度の取得
-             var Lat = results[0].geometry.location.lat();
-          var Lng = results[0].geometry.location.lng();
-          
-          // calculateAndDisplayRoute(Lat, Lng);
-          poss2.push({ lat: Lat, lng: Lng })
+    
+    // 中継地点の座標の取得
+           
+            var addresses = Array.isArray(relay) ? relay : JSON.parse(relay);
+            
+// 中継地点があるか確認
+    if (addresses && addresses.length > 0) {
+            // 各住所に対してGeocodingを実行
+            var geocodePromises = addresses.map(function (address) {
+                return new Promise(function (resolve, reject) {
+                    geocoder.geocode({ address: address }, function (results, status) {
+                        if (status === 'OK' && results[0]) {
+                            var Lat = results[0].geometry.location.lat();
+                            var Lng = results[0].geometry.location.lng();
+                            poss2.push({ lat: Lat, lng: Lng });
+                            console.log(`Address: ${address}, Latitude: ${Lat}, Longitude: ${Lng}`);
+                            resolve();
+                        } else {
+                            console.error(`Geocoding failed for address: ${address}`);
+                            reject();
+                        }
+                    });
+                });
+            });
 
-          // ここでcalculateAndDisplayRouteを呼び出す
-          calculateAndDisplayRoute(poss2);
+            // 全てのGeocodingが完了した後にcalculateAndDisplayRouteを呼び出す
+            Promise.all(geocodePromises).then(function () {
+                calculateAndDisplayRoute(poss, poss2);
+            });
         } else {
-            alert("中継地点の住所が正しくありません");
+        // 中継地点がない場合はcalculateAndDisplayRouteを直接呼び出す
+        calculateAndDisplayRoute(poss, poss2);
+    }
         }
-    });
-});
-  
-}
 
 
 function calculateAndDisplayRoute(poss,poss2) {
+	
   const directionsRenderer = new google.maps.DirectionsRenderer();
   const directionsService = new google.maps.DirectionsService();
   const map = new google.maps.Map(document.getElementById("map"), {
@@ -138,23 +172,26 @@ function calculateAndDisplayRoute(poss,poss2) {
 
   document.getElementById("mode").addEventListener("change", () => {
     const selectedMode = document.getElementById("mode").value;
-    calculateAndDisplayRoute(poss, poss2 ,selectedMode);
+    calculateAndDisplayRoute(poss, poss2, selectedMode);
   });
 
   const selectedMode = document.getElementById("mode").value;
- 
- for(let i = 0; i < poss2.length; i++){
-	 waypts.push({
-        location: { lat: poss2[i].lat, lng: poss2[i].lng },
-        stopover: true,
-      });
- }
+ var waypoints = [];
+
+        if (poss2.length > 0) {
+            waypoints = poss2.map(function (point) {
+                return {
+                    location: new google.maps.LatLng(point.lat, point.lng),
+                    stopover: true,
+                };
+            });
+        }
  
   directionsService
     .route({
       origin: { lat: poss[0].lat, lng: poss[0].lng },//origin: { lat: Lat, lng: Lng },
       destination: { lat: poss[1].lat, lng: poss[1].lng },
-      waypoints: waypts,//配列用に作り変える　配列はposs2
+     waypoints: waypoints,
 
       travelMode: google.maps.TravelMode[selectedMode],
     })
@@ -162,7 +199,7 @@ function calculateAndDisplayRoute(poss,poss2) {
       directionsRenderer.setDirections(response);
       
           // ルートの詳細情報にアクセス
-    var route = response.routes[0];
+ var route = response.routes[0];
 
     // 各セグメント（ステップ）にアクセス
     route.legs.forEach(function(leg) {
