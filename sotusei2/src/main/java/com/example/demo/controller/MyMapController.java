@@ -13,7 +13,7 @@ public class MyMapController {
 	//最初のページ
 	@RequestMapping(path = "/mymap", method = RequestMethod.GET)
 	public String login() {
-		return "mymap";
+		return "a";
 	}
 
 	
@@ -83,9 +83,12 @@ public class MyMapController {
 	    }
 		
 	
-		return "renshuu4";
+		return "transit";//本当はrenshuu4
+	}//driving walking transit
+	@RequestMapping(path = "/back", method = RequestMethod.GET)
+	public String back() {
+		return "prepre";
 	}
-
 
 
 //開始地点と終了地点の検索完成

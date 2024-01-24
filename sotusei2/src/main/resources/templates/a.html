@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Directions Service</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWyBYY1MDDyQGdA6VN72X7QOHhwPh4I_o&libraries=places&callback=initMap" async defer></script>
+    <script>
+      var directionsService, directionsRenderer;
+
+      function initMap() {
+        directionsService = new google.maps.DirectionsService();
+        directionsRenderer = new google.maps.DirectionsRenderer();
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 7,
+          center: {lat: 41.85, lng: -87.65}
+        });
+        directionsRenderer.setMap(map);
+
+        calculateAndDisplayRoute();
+      }
+
+      function calculateAndDisplayRoute() {
+        var request = {
+          origin: {lat: 35.6818718, lng: 139.7658469}, // 東京駅の座標
+          destination: {lat: 35.69124480000001, lng: 139.7011092}, // 新宿駅の座標
+          travelMode: 'TRANSIT'
+        };
+
+        directionsService.route(request, function(result, status) {
+          if (status == 'OK') {
+            directionsRenderer.setDirections(result);
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+  </body>
+</html>
