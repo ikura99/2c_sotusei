@@ -10,6 +10,22 @@
  * Always set the map height explicitly to define the size of the div element
  * that contains the map. 
  */
+ .tabs {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      font-size: 30px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 5px 20px;
+      background-color: #f4f4f4;
+      cursor: pointer;
+    }
+ 
 #map {
   height: 100%;
 }
@@ -48,30 +64,20 @@ body {
     </style>
 </head>
 <body>
-	
-	<form action="/back" method="get">
-  
-    <input type="submit" value="戻る">
-	</form>
-	
-	<div id="floating-panel">
-      <b>Mode of Travel: </b>
-      <select id="mode">
-        <option value="DRIVING">Driving</option>        
-      </select>
-    </div>
+	 <ul class="tabs">
+    <li class="tab"><a th:href="@{/walking}">徒歩</a></li>
+    <li class="tab"><a th:href="@{/driving}">車</a></li>
+    <li class="tab"><a th:href="@{/transit}">交通機関</a></li>
+    <li class="tab"><a th:href="@{/bycycling}">自転車</a></li>
+  </ul>
+
     <div id="map"></div>
     
  <script th:inline="javascript">
 		const  start = /*[[${ start}]]*/" start";
         const  goal = /*[[${ goal}]]*/" goal";
     	var relay = /*[[${relayPoints}]]*/ null;
-    
-    
- var script = document.createElement('script');
-                script.src = '//maps.google.com/maps/api/js?key=AIzaSyAWyBYY1MDDyQGdA6VN72X7QOHhwPh4I_o&callback=initMap';
-                script.async = true; // スクリプトを非同期に読み込む
-                document.body.appendChild(script);
+
 </script>
 
 <script>
@@ -213,15 +219,8 @@ const directionsRenderer = new google.maps.DirectionsRenderer();
     center: { lat: 35.6585696, lng: 139.745484 },
   });
   
-
   directionsRenderer.setMap(map);
 
-  document.getElementById("mode").addEventListener("change", () => {
-    const selectedMode = document.getElementById("mode").value;
-    calculateAndDisplayRoute(poss, poss2, selectedMode);
-  });
-
-  const selectedMode = document.getElementById("mode").value;
  var waypoints = [];
 
         if (poss2 && poss2.length > 0) {
@@ -243,7 +242,7 @@ const directionsRenderer = new google.maps.DirectionsRenderer();
       destination: { lat: root.goal_lat, lng: root.goal_lng },
      waypoints: waypoints,
 
-      travelMode: google.maps.TravelMode[selectedMode],
+      travelMode: "DRIVING",
     })
     .then((response) => {
       directionsRenderer.setDirections(response);
@@ -321,20 +320,12 @@ const directionsRenderer = new google.maps.DirectionsRenderer();
 
   directionsRenderer.setMap(map);
 
-  document.getElementById("mode").addEventListener("change", () => {
-    const selectedMode = document.getElementById("mode").value;
-    calculateAndDisplayRoute2(poss, selectedMode);
-  });
-
-  const selectedMode = document.getElementById("mode").value;
-
- 
   directionsService
     .route({
       origin: { lat: root.start_lat, lng: root.start_lng },
       destination: { lat: root.goal_lat, lng: root.goal_lng },
 
-      travelMode: google.maps.TravelMode[selectedMode],
+      travelMode: "DRIVING",
     })
     .then((response) => {
       directionsRenderer.setDirections(response);
@@ -351,9 +342,7 @@ route.legs.forEach(function (leg) {
 	var a = { lat: step.start_location.lat(), lng: step.start_location.lng() };
     // 開始地点のlatとlngを配列に追加
     startLatLngArray.push([latLngStart.lat, latLngStart.lng]);
-    
-    
-    
+   
     console.log("ルートの指示:", step.instructions);
     console.log("ステップの開始地点:", step.start_location.lat(), step.start_location.lng());
     console.log("ステップの終了地点:", step.end_location.lat(), step.end_location.lng());
@@ -361,8 +350,7 @@ route.legs.forEach(function (leg) {
     console.log("ステップの距離:", step.distance.text);
     console.log("LatLngs の配列:", step.path);
     console.log("------------------------");
-    
-    
+
 // HTML形式で指示を取得
     var instructionsHTML = step.instructions;
 
@@ -404,9 +392,25 @@ document.getElementById('relayContainer4').appendChild(newParagraph4);
 
 window.initMap = initMap;
 
-		
+function loadGoogleMapsScript() {
+      const script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=AIzaSyAWyBYY1MDDyQGdA6VN72X7QOHhwPh4I_o&callback=initMap';
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+		loadGoogleMapsScript();
 	</script>
 	
+	<script>
+    window.addEventListener('beforeunload', function () {
+        // ウィンドウが閉じられる前にサーバーサイドに通知する
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'SessionClearServlet', true);
+        xhr.send();
+    });
+</script>
+
+
 	
 	 	<div id="relayContainer">
 		</div>
