@@ -1,12 +1,19 @@
 package com.example.demo.controller;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,13 +24,6 @@ import jakarta.servlet.http.HttpSession;
 public class MyMapController {
 
 
-	//最初のページ
-	@RequestMapping(path = "/mymap", method = RequestMethod.GET)
-	public String login() {
-		return "a";
-	}
-
-	
 	
 //開始地点、中継地点、終了地点完成
 //いじらない!!!!!!!!!!!!!!!!!!
@@ -70,12 +70,16 @@ public class MyMapController {
 		return "prepre";
 	}
 	@RequestMapping(path = "/result", method = RequestMethod.POST)
-	public String result(String start, String goal, @RequestParam(value = "relay[]", required = false) String[] relayPoints, Model model, HttpSession session) {
+	public String result(String start, String goal, @RequestParam(value = "relay[]", required = false) String[] relayPoints, 
+			Model model, HttpSession session, @RequestParam(name = "starttime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime starttime, 
+			@RequestParam(name = "goaltime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime goaltime) {
 		//required = falseでrelayPointsの中身が無くてもエラーが起きないようにしている
-		  session.removeAttribute("start");
+		  	session.removeAttribute("start");
 	        session.removeAttribute("goal");
 	        session.removeAttribute("relayPoints");
-		
+	        session.removeAttribute("departureTime");
+	        session.removeAttribute("arrivaltime");
+	        
 		session.setAttribute("start", start);
 		session.setAttribute("goal", goal);
 		
@@ -93,7 +97,22 @@ public class MyMapController {
 			model.addAttribute("relayPoints", relayPoints);
 	    }
 		
-	
+		if (starttime != null) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+	        String departureTime = starttime.format(formatter);
+			session.setAttribute("departureTime", departureTime);
+			model.addAttribute("departureTime", departureTime);
+			System.out.println(departureTime);
+	    }
+		
+		if (goaltime != null) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+	        String arrivaltime = goaltime.format(formatter);
+			session.setAttribute("arrivaltime", arrivaltime);
+			model.addAttribute("arrivaltime", arrivaltime);
+			System.out.println(arrivaltime);
+	    }
+		
 		return "walking";//本当はrenshuu4
 	}//driving walking transit
 	
@@ -116,6 +135,8 @@ public class MyMapController {
 		//required = falseでrelayPointsの中身が無くてもエラーが起きないようにしている
 		model.addAttribute("start", session.getAttribute("start"));	
 		model.addAttribute("goal", session.getAttribute("goal"));	
+		model.addAttribute("departureTime", session.getAttribute("departureTime"));
+		model.addAttribute("arrivaltime", session.getAttribute("arrivaltime"));
 		
 		if (session.getAttribute("relayPoints") != null) {
 			
@@ -165,6 +186,26 @@ public class MyMapController {
 	    }
 	}
 	
+	@RequestMapping(path = "/streetview", method = RequestMethod.POST)
+	public void streetview(HttpSession session, Model model, @RequestBody Map<String, List<Map<String,Double>>> coordinates) {
+		
+		//model.addAttribute("Coordinates", coordinates);
+		session.setAttribute("stacoordinatesrt", coordinates);
+		System.out.println(coordinates);
+		//return "redirect:/view";
+		
+	}
+	
+	@RequestMapping(path = "/session", method = RequestMethod.GET)
+	@ResponseBody
+	public  Map<String, List<Map<String,Double>>> session(HttpSession session) {
+		return ( Map<String, List<Map<String,Double>>>) session.getAttribute("stacoordinatesrt");
+	}
+	
+	@RequestMapping(path = "/session2", method = RequestMethod.GET)
+	public  String session2() {
+		return "view";
+	}
 	
 	
 	

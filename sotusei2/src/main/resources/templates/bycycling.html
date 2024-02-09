@@ -254,37 +254,42 @@ const directionsRenderer = new google.maps.DirectionsRenderer();
 
 route.legs.forEach(function (leg) {
   leg.steps.forEach(function (step, index, stepsArray) {
-    // ステップごとの詳細情報にアクセス
+   var newDiv = document.createElement('div');
+    
     var latLngStart = { lat: step.start_location.lat(), lng: step.start_location.lng() };
-
+	var a = { lat: step.start_location.lat(), lng: step.start_location.lng() };
     // 開始地点のlatとlngを配列に追加
     startLatLngArray.push([latLngStart.lat, latLngStart.lng]);
-
+    
     console.log("ルートの指示:", step.instructions);
-    console.log("ステップの開始地点:", latLngStart.lat, latLngStart.lng);
+    console.log("ステップの開始地点:", step.start_location.lat(), step.start_location.lng());
     console.log("ステップの終了地点:", step.end_location.lat(), step.end_location.lng());
     console.log("ステップの所要時間:", step.duration.text);
     console.log("ステップの距離:", step.distance.text);
+    console.log("LatLngs の配列:", step.path);
     console.log("------------------------");
-
-
-	// HTML形式で指示を取得
+    
+      
+    // HTML形式で指示を取得
     var instructionsHTML = step.instructions;
-
-    var instructionsElement = document.createElement('p');
-    instructionsElement.innerHTML = instructionsHTML;
-    document.getElementById('relayContainer').appendChild(instructionsElement);	
-	
+    var instructions = document.createElement('p');
+    instructions.innerHTML = instructionsHTML;
+    newDiv.appendChild(instructions);
+    	
 // 新しい段落要素を生成
-const newParagraph2 = document.createElement('p');
+const duration = document.createElement('p');
 // テキストコンテンツに変数の値を含めて段落要素に設定
-newParagraph2.textContent = `${step.duration.text}`;
-document.getElementById('relayContainer2').appendChild(newParagraph2);
+duration.textContent = `${step.duration.text}`;
+newDiv.appendChild(duration);
 
-const newParagraph3 = document.createElement('p');
-newParagraph3.textContent = `${step.distance.text}`;
-document.getElementById('relayContainer3').appendChild(newParagraph3);
 
+
+const distance = document.createElement('p');
+distance.textContent = `${step.distance.text}`;
+newDiv.appendChild(distance);
+const hrElement = document.createElement('hr');
+newDiv.appendChild(hrElement);
+document.getElementById('aaa').appendChild(newDiv);
     // 最後のステップの場合、終了地点も配列に追加
     if (index === stepsArray.length - 1) {
       var latLngEnd = { lat: step.end_location.lat(), lng: step.end_location.lng() };
@@ -337,12 +342,13 @@ const directionsRenderer = new google.maps.DirectionsRenderer();
 
 route.legs.forEach(function (leg) {
   leg.steps.forEach(function (step, index, stepsArray) {
-    // ステップごとの詳細情報にアクセス
+    var newDiv = document.createElement('div');
+    
     var latLngStart = { lat: step.start_location.lat(), lng: step.start_location.lng() };
 	var a = { lat: step.start_location.lat(), lng: step.start_location.lng() };
     // 開始地点のlatとlngを配列に追加
     startLatLngArray.push([latLngStart.lat, latLngStart.lng]);
-   
+    
     console.log("ルートの指示:", step.instructions);
     console.log("ステップの開始地点:", step.start_location.lat(), step.start_location.lng());
     console.log("ステップの終了地点:", step.end_location.lat(), step.end_location.lng());
@@ -350,24 +356,28 @@ route.legs.forEach(function (leg) {
     console.log("ステップの距離:", step.distance.text);
     console.log("LatLngs の配列:", step.path);
     console.log("------------------------");
-
-// HTML形式で指示を取得
+    
+      
+    // HTML形式で指示を取得
     var instructionsHTML = step.instructions;
-
-    var instructionsElement = document.createElement('p');
-    instructionsElement.innerHTML = instructionsHTML;
-    document.getElementById('relayContainer').appendChild(instructionsElement);	
-
+    var instructions = document.createElement('p');
+    instructions.innerHTML = instructionsHTML;
+    newDiv.appendChild(instructions);
+    	
 // 新しい段落要素を生成
-const newParagraph2 = document.createElement('p');
+const duration = document.createElement('p');
 // テキストコンテンツに変数の値を含めて段落要素に設定
-newParagraph2.textContent = `${step.duration.text}`;
-document.getElementById('relayContainer2').appendChild(newParagraph2);
+duration.textContent = `${step.duration.text}`;
+newDiv.appendChild(duration);
 
-const newParagraph3 = document.createElement('p');
-newParagraph3.textContent = `${step.distance.text}`;
-document.getElementById('relayContainer3').appendChild(newParagraph3);
 
+
+const distance = document.createElement('p');
+distance.textContent = `${step.distance.text}`;
+newDiv.appendChild(distance);
+const hrElement = document.createElement('hr');
+newDiv.appendChild(hrElement);
+document.getElementById('aaa').appendChild(newDiv);
     // 最後のステップの場合、終了地点も配列に追加
     if (index === stepsArray.length - 1) {
       var latLngEnd = { lat: step.end_location.lat(), lng: step.end_location.lng() };
@@ -380,9 +390,9 @@ document.getElementById('relayContainer3').appendChild(newParagraph3);
 console.log("開始地点のlatとlngを含む配列:", startLatLngArray);
 
 var duration = response.routes[0].legs[0].duration.text;
-const newParagraph4 = document.createElement('p');
-newParagraph4.textContent = `${duration}`;
-document.getElementById('relayContainer4').appendChild(newParagraph4);
+const allduration = document.createElement('p');
+allduration.textContent = `${duration}`;
+document.getElementById('allduration').appendChild(allduration);
     })
     .catch((e) => {
             console.error("Directions request failed:", e);
@@ -409,17 +419,14 @@ function loadGoogleMapsScript() {
         xhr.send();
     });
 </script>
+
 	
-	 	<div id="relayContainer">
-		</div>
-		
-		<div id="relayContainer2">
-		</div>
-		
-		<div id="relayContainer3">
-		</div>
-    
-    	<div id="relayContainer4">
-		</div>
+	 	<div id="aaa">
+        </div>
+  
+    	<div id="allduration"><h3>所要時間</h3>
+        </div>
+        
+
 </body>
 </html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Sample</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        #street-view {
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="street-view"></div>
+
+
+
+    <script>
+        const LIMIT = 300;
+        const WAIT_SECOND = 1;
+        const START_HEADING = 180;
+        const DISTANCE_THRESHOLD = 50;
+        let panorama;
+
+        async function initMap() {
+            console.log("InitMap function called");
+            const ris = await fetch('/session');
+            const Coordinate2 = await ris.json();
+			console.log(Coordinate2);
+			const Coordinate = Coordinate2.view.map(c => [c.lat, c.lng]);
+            //const Coordinate = [
+						//[35.6382304, 140.1066991],
+						//[35.63931, 140.1062242],
+						//[35.6393835, 140.1060643],
+						//[35.6376974, 140.0888832],
+						//[35.637242, 140.0886566],
+						//[35.6353287, 140.0909563],
+						//[35.6361286, 140.0925879],
+						//[35.6364176, 140.0924784],
+						//[35.6356317, 140.0934687],
+						//[35.6356317, 140.0934687],
+						//[35.6355583, 140.0935182],
+						//[35.6349722, 140.0923255],
+						//[35.6342499, 140.092851],
+						//[35.6333188, 140.0909481],
+						//[35.6132885, 140.1113982],
+						//[35.6128856, 140.1121542],
+						//[35.6125849, 140.1131131]
+					//];
+										
+
+            let Links, count = 0, timer_id;
+            let currentIndex = 0;
+
+            panorama = new google.maps.StreetViewPanorama(
+                document.getElementById('street-view'), {
+                    position: { lat: Coordinate[currentIndex][0], lng: Coordinate[currentIndex][1] },
+                    pov: {
+                        heading: START_HEADING,
+                        pitch: 0
+                    },
+                    zoom: 1
+                });
+
+            Links = panorama.getLinks();
+
+            google.maps.event.addListener(panorama, 'status_changed', function () {
+                console.log("StreetView status changed:", panorama.getStatus());
+
+                if (panorama.getStatus() == "OK") {
+                    // Move to the next location after a delay
+                    setTimeout(() => {
+                        currentIndex++;
+
+                        // Check if there are more locations
+                        if (currentIndex < Coordinate.length) {
+                            // Update the panorama's position
+                            panorama.setPosition({ lat: Coordinate[currentIndex][0], lng: Coordinate[currentIndex][1] });
+                        } else {
+                            // All locations visited
+                            console.log("All locations visited");
+                        }
+                    }, WAIT_SECOND * 1000);
+                }
+            });
+        }
+    </script>
+     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWyBYY1MDDyQGdA6VN72X7QOHhwPh4I_o&callback=initMap" async defer></script>
+
+</body>
+
+</html>

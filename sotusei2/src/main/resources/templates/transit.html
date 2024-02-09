@@ -53,16 +53,19 @@ body {
   line-height: 30px;
   padding-left: 10px;
 }
-#relayContainer{
-	 float:  left;
-}	
-#relayContainer2{
-	 float:  left;
-}	
+	
 
     </style>
 </head>
 <body>
+	
+<!--	#instructions{-->
+<!--	 float:  left;-->
+<!--}	-->
+<!--#duration{-->
+<!--	 float:  left;-->
+<!--}-->
+	
  <ul class="tabs">
     <li class="tab"><a th:href="@{/walking}">徒歩</a></li>
     <li class="tab"><a th:href="@{/driving}">車</a></li>
@@ -76,10 +79,35 @@ body {
 		const  start = /*[[${ start}]]*/" start";
         const  goal = /*[[${ goal}]]*/" goal";
     	var relay = /*[[${relayPoints}]]*/ null;
- 
+ 		const departureTime = /*[[${ departureTime}]]*/"departureTime";
+ 		console.log("departureTimeだよ!!!:" + departureTime);
+        const  arrivaltime = /*[[${ arrivaltime}]]*/" arrivaltime";
+        console.log("arrivaltimeだよ!!!:" + arrivaltime);
 </script>
 
 <script>
+	 var Coordinate = [];
+	 
+	 function sendValueToController() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/streetview", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                console.log("Request successful");
+                 // レスポンスのHTMLを取得
+      			//var html = xhr.responseText;
+      			// ページ全体を書き換え
+      			//document.documentElement.innerHTML = html;
+      			window.location.href = '/session2';
+            } else {
+                console.error("Request failed");
+            }
+        };
+        xhr.send(JSON.stringify({ view: Coordinate }));
+	}
+	 
+	 
          function initMap() {
 			 const root = {
 				 
@@ -221,6 +249,30 @@ const directionsRenderer = new google.maps.DirectionsRenderer();
 
   directionsRenderer.setMap(map);
 
+console.log('departureTime:', departureTime);
+const localDepartureTime = formatDate(departureTime);
+console.log('localDepartureTime:', localDepartureTime);
+
+ // ISO 8601 形式の日時から UTC への変換
+const localDepartureTime2 = new Date(localDepartureTime);
+const utcDepartureTime = new Date(localDepartureTime2.getTime());// + localDepartureTime2.getTimezoneOffset() * 60000
+
+// UTC Departure Time のログを表示
+console.log('UTC Departure Time:', utcDepartureTime.toISOString());
+ 
+ 
+ console.log('arrivaltime:', arrivaltime);
+const localArrivalTime = formatDate(arrivaltime);
+console.log('localArrivalTime:', localArrivalTime);
+
+ // ISO 8601 形式の日時から UTC への変換
+const localArrivalTime2 = new Date(localArrivalTime);
+const utcArrivalTime = new Date(localArrivalTime2.getTime());// + localDepartureTime2.getTimezoneOffset() * 60000
+
+// UTC Departure Time のログを表示
+console.log('UTC Departure Time:', utcArrivalTime.toISOString());
+ 
+
  var waypoints = [];
 
         if (poss2 && poss2.length > 0) {
@@ -235,13 +287,16 @@ const directionsRenderer = new google.maps.DirectionsRenderer();
 		}
 		
 
-
   directionsService
     .route({
       origin: { lat: root.start_lat, lng: root.start_lng },
       destination: { lat: root.goal_lat, lng: root.goal_lng },
      waypoints: waypoints,
       travelMode: "TRANSIT",
+      transitOptions: {
+      departureTime: utcDepartureTime,
+      arrivalTime : utcArrivalTime
+      }
     })
     .then((response) => {
       directionsRenderer.setDirections(response);
@@ -250,39 +305,85 @@ const directionsRenderer = new google.maps.DirectionsRenderer();
           
  var startLatLngArray = [];
  var route = response.routes[0];
+ var Coordinate = [];
 
 route.legs.forEach(function (leg) {
   leg.steps.forEach(function (step, index, stepsArray) {
-    // ステップごとの詳細情報にアクセス
-    var latLngStart = { lat: step.start_location.lat(), lng: step.start_location.lng() };
-
-    // 開始地点のlatとlngを配列に追加
+// 開始地点のlatとlngを配列に追加
     startLatLngArray.push([latLngStart.lat, latLngStart.lng]);
+    
+    // HTML形式で指示を取得
+    var instructionsHTML = step.instructions;
+    var instructions = document.createElement('p');
+    instructions.innerHTML = instructionsHTML;
+    newDiv.appendChild(instructions);
+    
+    if (step.travel_mode === "TRANSIT") {
+      // 交通機関に関する詳細情報
+      console.log("乗車手段:", step.transit.line.vehicle.type);
+      console.log("路線名:", step.transit.line.short_name);
+      console.log("行き先:", step.transit.headsign);
+      console.log("乗車するバス・電車の番線:", step.transit.line.departure_track);
+      console.log("出発時間:", step.transit.departure_time.value);
+      console.log("到着時間:", step.transit.arrival_time.value);
 
+      const type = document.createElement('p');
+      type.textContent = `${step.transit.line.vehicle.type}`;
+	  newDiv.appendChild(type);
+	  
+      const short_name = document.createElement('p');
+      short_name.textContent = `${step.transit.line.short_name}`;
+	  newDiv.appendChild(short_name);
+	
+      const headsign = document.createElement('p');
+      headsign.textContent = `${step.transit.headsign}`;
+	  newDiv.appendChild(headsign);	 
+
+      const departure_track = document.createElement('p');
+      departure_track.textContent = `${step.transit.line.departure_track}`;
+	  newDiv.appendChild(departure_track);
+	  
+	  const departure_time = document.createElement('p');
+      departure_time.textContent = `${step.transit.departure_time.value}`;
+	  newDiv.appendChild(departure_time);
+
+	  const arrival_time = document.createElement('p');
+	  arrival_time.textContent = `${step.transit.arrival_time.value}`;
+	  newDiv.appendChild(arrival_time);
+
+    }
+    
     console.log("ルートの指示:", step.instructions);
-    console.log("ステップの開始地点:", latLngStart.lat, latLngStart.lng);
+    console.log("ステップの開始地点:", step.start_location.lat(), step.start_location.lng());
     console.log("ステップの終了地点:", step.end_location.lat(), step.end_location.lng());
     console.log("ステップの所要時間:", step.duration.text);
     console.log("ステップの距離:", step.distance.text);
+    console.log("LatLngs の配列:", step.path);
     console.log("------------------------");
-
-
-	// HTML形式で指示を取得
-    var instructionsHTML = step.instructions;
-
-    var instructionsElement = document.createElement('p');
-    instructionsElement.innerHTML = instructionsHTML;
-    document.getElementById('relayContainer').appendChild(instructionsElement);	
+    
+    const stepScopes = step.path.map(s=>{
+		console.log(s);
+		const scope = s.lat().Scopes[0];
+		return {lat: scope.e, lng:scope.f}
+	});
+    console.log("---------stepScopes-----", stepScopes);
+    console.log("---------stepScopes-----");;
 	
+    	
 // 新しい段落要素を生成
-const newParagraph2 = document.createElement('p');
+const duration = document.createElement('p');
 // テキストコンテンツに変数の値を含めて段落要素に設定
-newParagraph2.textContent = `${step.duration.text}`;
-document.getElementById('relayContainer2').appendChild(newParagraph2);
+duration.textContent = `${step.duration.text}`;
+newDiv.appendChild(duration);
 
-const newParagraph3 = document.createElement('p');
-newParagraph3.textContent = `${step.distance.text}`;
-document.getElementById('relayContainer3').appendChild(newParagraph3);
+
+
+const distance = document.createElement('p');
+distance.textContent = `${step.distance.text}`;
+newDiv.appendChild(distance);
+const hrElement = document.createElement('hr');
+newDiv.appendChild(hrElement);
+document.getElementById('aaa').appendChild(newDiv);
 
     // 最後のステップの場合、終了地点も配列に追加
     if (index === stepsArray.length - 1) {
@@ -317,6 +418,18 @@ document.getElementById('relayContainer5').appendChild(newParagraph5);
             console.error("Directions request failed:", e);
             window.alert("Directions request failed. Please check console for details.");
         });
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
 function calculateAndDisplayRoute2(root) {
@@ -332,16 +445,39 @@ const directionsRenderer = new google.maps.DirectionsRenderer();
   
   directionsRenderer.setMap(map);
 
-var departureTime; //= new Date('2024-01-23T16:30:00');//出発時刻
- var arrivalTime;//初期化　到着時刻
+
+ console.log('departureTime:', departureTime);
+const localDepartureTime = formatDate(departureTime);
+console.log('localDepartureTime:', localDepartureTime);
+
+ // ISO 8601 形式の日時から UTC への変換
+const localDepartureTime2 = new Date(localDepartureTime);
+const utcDepartureTime = new Date(localDepartureTime2.getTime());// + localDepartureTime2.getTimezoneOffset() * 60000
+
+// UTC Departure Time のログを表示
+console.log('UTC Departure Time:', utcDepartureTime.toISOString());
+ 
+ 
+ 
+ console.log('arrivaltime:', arrivaltime);
+const localArrivalTime = formatDate(arrivaltime);
+console.log('localArrivalTime:', localArrivalTime);
+
+ // ISO 8601 形式の日時から UTC への変換
+const localArrivalTime2 = new Date(localArrivalTime);
+const utcArrivalTime = new Date(localArrivalTime2.getTime());// + localDepartureTime2.getTimezoneOffset() * 60000
+
+// UTC Departure Time のログを表示
+console.log('UTC Departure Time:', utcArrivalTime.toISOString());
+ 
   directionsService
     .route({
       origin: { lat: root.start_lat, lng: root.start_lng },
       destination: { lat: root.goal_lat, lng: root.goal_lng },
       travelMode: "TRANSIT",
       transitOptions: {
-      departureTime: departureTime,
-      arrivalTime : arrivalTime
+      departureTime: utcDepartureTime,
+      arrivalTime : utcArrivalTime
       }
     })
     .then((response) => {
@@ -351,17 +487,58 @@ var departureTime; //= new Date('2024-01-23T16:30:00');//出発時刻
           
  var startLatLngArray = [];
  var route = response.routes[0];
-
+// var Coordinate = [];
 // ステップごとの詳細情報にアクセス
 route.legs.forEach(function (leg) {
   leg.steps.forEach(function (step, index, stepsArray) {
+    
+    var newDiv = document.createElement('div');
     
     var latLngStart = { lat: step.start_location.lat(), lng: step.start_location.lng() };
 	var a = { lat: step.start_location.lat(), lng: step.start_location.lng() };
     // 開始地点のlatとlngを配列に追加
     startLatLngArray.push([latLngStart.lat, latLngStart.lng]);
     
+    // HTML形式で指示を取得
+    var instructionsHTML = step.instructions;
+    var instructions = document.createElement('p');
+    instructions.innerHTML = instructionsHTML;
+    newDiv.appendChild(instructions);
     
+    if (step.travel_mode === "TRANSIT") {
+      // 交通機関に関する詳細情報
+      console.log("乗車手段:", step.transit.line.vehicle.type);
+      console.log("路線名:", step.transit.line.short_name);
+      console.log("行き先:", step.transit.headsign);
+      console.log("乗車するバス・電車の番線:", step.transit.line.departure_track);
+      console.log("出発時間:", step.transit.departure_time.value);
+      console.log("到着時間:", step.transit.arrival_time.value);
+
+      const type = document.createElement('p');
+      type.textContent = `${step.transit.line.vehicle.type}`;
+	  newDiv.appendChild(type);
+	  
+      const short_name = document.createElement('p');
+      short_name.textContent = `${step.transit.line.short_name}`;
+	  newDiv.appendChild(short_name);
+	
+      const headsign = document.createElement('p');
+      headsign.textContent = `${step.transit.headsign}`;
+	  newDiv.appendChild(headsign);	 
+
+      const departure_track = document.createElement('p');
+      departure_track.textContent = `${step.transit.line.departure_track}`;
+	  newDiv.appendChild(departure_track);
+	  
+	  const departure_time = document.createElement('p');
+      departure_time.textContent = `${step.transit.departure_time.value}`;
+	  newDiv.appendChild(departure_time);
+
+	  const arrival_time = document.createElement('p');
+	  arrival_time.textContent = `${step.transit.arrival_time.value}`;
+	  newDiv.appendChild(arrival_time);
+
+    }
     
     console.log("ルートの指示:", step.instructions);
     console.log("ステップの開始地点:", step.start_location.lat(), step.start_location.lng());
@@ -370,24 +547,29 @@ route.legs.forEach(function (leg) {
     console.log("ステップの距離:", step.distance.text);
     console.log("LatLngs の配列:", step.path);
     console.log("------------------------");
-    
-    
-// HTML形式で指示を取得
-    var instructionsHTML = step.instructions;
+    	
+    Coordinate = [...Coordinate, ...step.path.map(s=>{
+		return {lat: s.lat(), lng: s.lng()};
+    })];
+    console.log("---------stepScopes-----", Coordinate);
+    console.log("---------stepScopes-----");
 
-    var instructionsElement = document.createElement('p');
-    instructionsElement.innerHTML = instructionsHTML;
-    document.getElementById('relayContainer').appendChild(instructionsElement);	
-	
+//Coordinate.[0].lat
+
 // 新しい段落要素を生成
-const newParagraph2 = document.createElement('p');
+const duration = document.createElement('p');
 // テキストコンテンツに変数の値を含めて段落要素に設定
-newParagraph2.textContent = `${step.duration.text}`;
-document.getElementById('relayContainer2').appendChild(newParagraph2);
+duration.textContent = `${step.duration.text}`;
+newDiv.appendChild(duration);
 
-const newParagraph3 = document.createElement('p');
-newParagraph3.textContent = `${step.distance.text}`;
-document.getElementById('relayContainer3').appendChild(newParagraph3);
+
+
+const distance = document.createElement('p');
+distance.textContent = `${step.distance.text}`;
+newDiv.appendChild(distance);
+const hrElement = document.createElement('hr');
+newDiv.appendChild(hrElement);
+document.getElementById('aaa').appendChild(newDiv);
 
     // 最後のステップの場合、終了地点も配列に追加
     if (index === stepsArray.length - 1) {
@@ -401,9 +583,9 @@ document.getElementById('relayContainer3').appendChild(newParagraph3);
 console.log("開始地点のlatとlngを含む配列:", startLatLngArray);
 
 var duration = response.routes[0].legs[0].duration.text;
-const newParagraph4 = document.createElement('p');
-newParagraph4.textContent = `${duration}`;
-document.getElementById('relayContainer4').appendChild(newParagraph4);
+const allduration = document.createElement('p');
+allduration.textContent = `${duration}`;
+document.getElementById('allduration').appendChild(allduration);
 
 var fare = response.routes[0].fare;
 var Fare;
@@ -414,14 +596,15 @@ if (fare) {
   console.log('料金情報がありません。');
   Fare = ("料金情報がありません。");
 }
-const newParagraph5 = document.createElement('p');
-newParagraph5.textContent = `${Fare}`;
-document.getElementById('relayContainer5').appendChild(newParagraph5);
+const fare2 = document.createElement('p');
+fare2.textContent = `${Fare}`;
+document.getElementById('fare').appendChild(fare2);
     })
     .catch((e) => {
             console.error("Directions request failed:", e);
             window.alert("Directions request failed. Please check console for details.");
         });
+      
 }
 
 window.initMap = initMap;
@@ -433,7 +616,9 @@ function loadGoogleMapsScript() {
       document.head.appendChild(script);
     }
 		loadGoogleMapsScript();
-	</script>
+		
+		
+</script>
 	
 	<script>
     window.addEventListener('beforeunload', function () {
@@ -444,21 +629,20 @@ function loadGoogleMapsScript() {
     });
 </script>
 
+
 	
-	 	<div id="relayContainer">
+	<div id="aaa">
+        </div>
+  
+    	<div id="allduration"><h2>所要時間</h2>
 		</div>
 		
-		<div id="relayContainer2">
+		<div id="fare">(11料金)
 		</div>
 		
-		<div id="relayContainer3">
-		</div>
-    
-    	<div id="relayContainer4">
-		</div>
 		
-		<div id="relayContainer5">
-		</div>
+		<button onclick="sendValueToController()">1111</button>
 	
+
 </body>
 </html>
