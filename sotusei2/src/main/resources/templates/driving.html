@@ -81,6 +81,27 @@ body {
 </script>
 
 <script>
+	var Coordinate = [];
+	 
+	 function sendValueToController() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/streetview", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                console.log("Request successful");
+                 // レスポンスのHTMLを取得
+      			//var html = xhr.responseText;
+      			// ページ全体を書き換え
+      			//document.documentElement.innerHTML = html;
+      			window.location.href = '/session2';
+            } else {
+                console.error("Request failed");
+            }
+        };
+        xhr.send(JSON.stringify({ view: Coordinate }));
+	}
+	
          function initMap() {
 			 const root = {
 				 
@@ -254,6 +275,7 @@ const directionsRenderer = new google.maps.DirectionsRenderer();
 
 route.legs.forEach(function (leg) {
   leg.steps.forEach(function (step, index, stepsArray) {
+	  var newDiv = document.createElement('div');
     // ステップごとの詳細情報にアクセス
     var latLngStart = { lat: step.start_location.lat(), lng: step.start_location.lng() };
 
@@ -267,23 +289,32 @@ route.legs.forEach(function (leg) {
     console.log("ステップの距離:", step.distance.text);
     console.log("------------------------");
 
-
-	// HTML形式で指示を取得
+Coordinate = [...Coordinate, ...step.path.map(s=>{
+		return {lat: s.lat(), lng: s.lng()};
+    })];
+    console.log("---------stepScopes-----", Coordinate);
+    console.log("---------stepScopes-----");
+      
+    // HTML形式で指示を取得
     var instructionsHTML = step.instructions;
-
-    var instructionsElement = document.createElement('p');
-    instructionsElement.innerHTML = instructionsHTML;
-    document.getElementById('relayContainer').appendChild(instructionsElement);	
-	
+    var instructions = document.createElement('p');
+    instructions.innerHTML = instructionsHTML;
+    newDiv.appendChild(instructions);
+    	
 // 新しい段落要素を生成
-const newParagraph2 = document.createElement('p');
+const duration = document.createElement('p');
 // テキストコンテンツに変数の値を含めて段落要素に設定
-newParagraph2.textContent = `${step.duration.text}`;
-document.getElementById('relayContainer2').appendChild(newParagraph2);
+duration.textContent = `${step.duration.text}`;
+newDiv.appendChild(duration);
 
-const newParagraph3 = document.createElement('p');
-newParagraph3.textContent = `${step.distance.text}`;
-document.getElementById('relayContainer3').appendChild(newParagraph3);
+
+
+const distance = document.createElement('p');
+distance.textContent = `${step.distance.text}`;
+newDiv.appendChild(distance);
+const hrElement = document.createElement('hr');
+newDiv.appendChild(hrElement);
+document.getElementById('aaa').appendChild(newDiv);
 
     // 最後のステップの場合、終了地点も配列に追加
     if (index === stepsArray.length - 1) {
@@ -295,10 +326,11 @@ document.getElementById('relayContainer3').appendChild(newParagraph3);
 
 // 開始地点のlatとlngを含む配列をコンソールに表示
 console.log("開始地点のlatとlngを含む配列:", startLatLngArray);
+
 var duration = response.routes[0].legs[0].duration.text;
-const newParagraph4 = document.createElement('p');
-newParagraph4.textContent = `${duration}`;
-document.getElementById('relayContainer4').appendChild(newParagraph4);
+const allduration = document.createElement('p');
+allduration.textContent = `${duration}`;
+document.getElementById('allduration').appendChild(allduration);
     })
     .catch((e) => {
             console.error("Directions request failed:", e);
@@ -352,6 +384,11 @@ route.legs.forEach(function (leg) {
     console.log("LatLngs の配列:", step.path);
     console.log("------------------------");
     
+     Coordinate = [...Coordinate, ...step.path.map(s=>{
+		return {lat: s.lat(), lng: s.lng()};
+    })];
+    console.log("---------stepScopes-----", Coordinate);
+    console.log("---------stepScopes-----");
       
     // HTML形式で指示を取得
     var instructionsHTML = step.instructions;
@@ -365,11 +402,10 @@ const duration = document.createElement('p');
 duration.textContent = `${step.duration.text}`;
 newDiv.appendChild(duration);
 
-
-
 const distance = document.createElement('p');
 distance.textContent = `${step.distance.text}`;
 newDiv.appendChild(distance);
+
 const hrElement = document.createElement('hr');
 newDiv.appendChild(hrElement);
 document.getElementById('aaa').appendChild(newDiv);
@@ -414,7 +450,9 @@ function loadGoogleMapsScript() {
         xhr.send();
     });
 </script>
-
+		<button onclick="sendValueToController()">ストリートビューに移動</button>
+		
+		<input type="button" value="検索画面に戻る" onclick="location.href='/search'">
 	
 	 	<div id="aaa">
         </div>

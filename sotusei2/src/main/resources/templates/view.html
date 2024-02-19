@@ -20,6 +20,9 @@
 </head>
 
 <body>
+<input type="button" value="前のページに戻る" onclick="window.history.back();">
+
+<input type="button" value="検索画面に戻る" onclick="location.href='/search'">
 
     <div id="street-view"></div>
 
@@ -86,9 +89,19 @@
                         if (currentIndex < Coordinate.length) {
                             // Update the panorama's position
                             panorama.setPosition({ lat: Coordinate[currentIndex][0], lng: Coordinate[currentIndex][1] });
+                            
+                            //const photographerPov = panorama.getPhotographerPov();
+
+							//const newHeading = photographerPov.heading + 180;
+
+							//panorama.setPov({
+   							//	heading: newHeading,
+    						//	pitch: photographerPov.pitch
+							//});
                         } else {
                             // All locations visited
                             console.log("All locations visited");
+                            alert("目的地に到着しました。");
                         }
                     }, WAIT_SECOND * 1000);
                 }
@@ -96,6 +109,9 @@
         }
     </script>
      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAWyBYY1MDDyQGdA6VN72X7QOHhwPh4I_o&callback=initMap" async defer></script>
+
+
+
 
 </body>
 

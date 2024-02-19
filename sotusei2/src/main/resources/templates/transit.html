@@ -76,13 +76,21 @@ body {
     <div id="map"></div>
     
  <script th:inline="javascript">
+	 
 		const  start = /*[[${ start}]]*/" start";
+		console.log("start確認:" + start);
+		
         const  goal = /*[[${ goal}]]*/" goal";
-    	var relay = /*[[${relayPoints}]]*/ null;
+        console.log("goal確認:" + goal);
+        
+    	var relay = /*[[${relayPoints}]]*/ null;	
+ 		//console.log("relay確認:" + relay);
+ 		
  		const departureTime = /*[[${ departureTime}]]*/"departureTime";
- 		console.log("departureTimeだよ!!!:" + departureTime);
+ 		console.log("departureTime確認:" + departureTime);
+ 		
         const  arrivaltime = /*[[${ arrivaltime}]]*/" arrivaltime";
-        console.log("arrivaltimeだよ!!!:" + arrivaltime);
+        console.log("arrivaltime確認:" + arrivaltime);
 </script>
 
 <script>
@@ -140,6 +148,7 @@ if(start === "現在地"){
 		 },
 		 (error) => {
     		handleLocationError(true, infoWindow, map.getCenter());
+    		alert("現在地が取得できませんでした");
             reject();
   		 }
 	    )
@@ -249,7 +258,7 @@ const directionsRenderer = new google.maps.DirectionsRenderer();
 
   directionsRenderer.setMap(map);
 
-console.log('departureTime:', departureTime);
+ console.log('departureTime:', departureTime);
 const localDepartureTime = formatDate(departureTime);
 console.log('localDepartureTime:', localDepartureTime);
 
@@ -259,6 +268,7 @@ const utcDepartureTime = new Date(localDepartureTime2.getTime());// + localDepar
 
 // UTC Departure Time のログを表示
 console.log('UTC Departure Time:', utcDepartureTime.toISOString());
+ 
  
  
  console.log('arrivaltime:', arrivaltime);
@@ -271,7 +281,6 @@ const utcArrivalTime = new Date(localArrivalTime2.getTime());// + localDeparture
 
 // UTC Departure Time のログを表示
 console.log('UTC Departure Time:', utcArrivalTime.toISOString());
- 
 
  var waypoints = [];
 
@@ -309,87 +318,171 @@ console.log('UTC Departure Time:', utcArrivalTime.toISOString());
 
 route.legs.forEach(function (leg) {
   leg.steps.forEach(function (step, index, stepsArray) {
-// 開始地点のlatとlngを配列に追加
+    
+    var newDiv = document.createElement('div');
+    
+    var latLngStart = { lat: step.start_location.lat(), lng: step.start_location.lng() };
+	var a = { lat: step.start_location.lat(), lng: step.start_location.lng() };
+    // 開始地点のlatとlngを配列に追加
     startLatLngArray.push([latLngStart.lat, latLngStart.lng]);
-    
-    // HTML形式で指示を取得
-    var instructionsHTML = step.instructions;
-    var instructions = document.createElement('p');
-    instructions.innerHTML = instructionsHTML;
-    newDiv.appendChild(instructions);
-    
+  
+   // 最後のステップの場合、終了地点も配列に追加
+    if (index === stepsArray.length - 1) {
+      var latLngEnd = { lat: step.end_location.lat(), lng: step.end_location.lng() };
+      startLatLngArray.push([latLngEnd.lat, latLngEnd.lng]);
+    }
+  
+  
     if (step.travel_mode === "TRANSIT") {
       // 交通機関に関する詳細情報
+      console.log("------------------------");
+      console.log("ルートの指示:", step.instructions);
       console.log("乗車手段:", step.transit.line.vehicle.type);
       console.log("路線名:", step.transit.line.short_name);
       console.log("行き先:", step.transit.headsign);
       console.log("乗車するバス・電車の番線:", step.transit.line.departure_track);
       console.log("出発時間:", step.transit.departure_time.value);
       console.log("到着時間:", step.transit.arrival_time.value);
-
+      console.log("ステップの開始地点:", step.start_location.lat(), step.start_location.lng());
+      console.log("ステップの終了地点:", step.end_location.lat(), step.end_location.lng());
+      console.log("ステップの所要時間:", step.duration.text);
+      console.log("ステップの距離:", step.distance.text);
+      console.log("LatLngs の配列:", step.path);
+      
+ 
+ 	  // HTML形式で指示を取得
+      var instructionsHTML = step.instructions;
+      var instructions = document.createElement('p');
+      instructions.innerHTML = instructionsHTML;
+      newDiv.appendChild(instructions);
+ 
+      const typeh3 = document.createElement('h3');
+      typeh3.textContent = `交通機関名`;
+      newDiv.appendChild(typeh3);
       const type = document.createElement('p');
       type.textContent = `${step.transit.line.vehicle.type}`;
-	  newDiv.appendChild(type);
-	  
+      if(type.textContent != "undefined"){
+		   newDiv.appendChild(type);
+	  }else{
+		  type.textContent = "情報がありません";
+		  newDiv.appendChild(type);
+	  }
+	 
+	  const short_nameh3 = document.createElement('h3');
+      short_nameh3.textContent = `路線名`;
+      newDiv.appendChild(short_nameh3);
       const short_name = document.createElement('p');
       short_name.textContent = `${step.transit.line.short_name}`;
-	  newDiv.appendChild(short_name);
+      if(short_name.textContent != "undefined"){
+		   newDiv.appendChild(short_name);
+	  }else{
+		  short_name.textContent = "情報がありません";
+		  newDiv.appendChild(short_name);
+	  }
 	
+	  const headsignh3 = document.createElement('h3');
+      headsignh3.textContent = `行き先`;
+      newDiv.appendChild(headsignh3);
       const headsign = document.createElement('p');
       headsign.textContent = `${step.transit.headsign}`;
-	  newDiv.appendChild(headsign);	 
+	  if(headsign.textContent != "undefined"){
+		   newDiv.appendChild(headsign);
+	  }else{
+		  headsign.textContent = "情報がありません";
+		  newDiv.appendChild(headsign);
+	  }	 
 
+	  const departure_trackh3 = document.createElement('h3');
+      departure_trackh3.textContent = `番線`;
+      newDiv.appendChild(departure_trackh3);
       const departure_track = document.createElement('p');
       departure_track.textContent = `${step.transit.line.departure_track}`;
-	  newDiv.appendChild(departure_track);
+	  if(departure_track.textContent != "undefined"){
+		   newDiv.appendChild(departure_track);
+	  }else{
+		  departure_track.textContent = "情報がありません";
+		  newDiv.appendChild(departure_track);
+	  }
 	  
+	  const departure_timeh3 = document.createElement('h3');
+      departure_timeh3.textContent = `出発時間`;
+      newDiv.appendChild(departure_timeh3);
 	  const departure_time = document.createElement('p');
       departure_time.textContent = `${step.transit.departure_time.value}`;
-	  newDiv.appendChild(departure_time);
+	  if(departure_time.textContent != "undefined"){
+		   newDiv.appendChild(departure_time);
+	  }else{
+		  departure_time.textContent = "情報がありません";
+		  newDiv.appendChild(departure_time);
+	  }
 
+	  const arrival_timeh3 = document.createElement('h3');
+      arrival_timeh3.textContent = `到着時間`;
+      newDiv.appendChild(arrival_timeh3);
 	  const arrival_time = document.createElement('p');
 	  arrival_time.textContent = `${step.transit.arrival_time.value}`;
-	  newDiv.appendChild(arrival_time);
+	  if(arrival_time.textContent != "undefined"){
+		   newDiv.appendChild(arrival_time);
+	  }else{
+		  arrival_time.textContent = "情報がありません";
+		  newDiv.appendChild(arrival_time);
+	  }
 
-    }
+	  const duration = document.createElement('p');
+	  duration.textContent = `${step.duration.text}`;
+	  newDiv.appendChild(duration);
+
+	  const distance = document.createElement('p');
+	  distance.textContent = `${step.distance.text}`;
+	  newDiv.appendChild(distance);
+
+	  const hrElement = document.createElement('hr');
+	  newDiv.appendChild(hrElement);
+	  document.getElementById('aaa').appendChild(newDiv);
+
+	  Coordinate = [...Coordinate, ...step.path.map(s=>{
+		return {lat: s.lat(), lng: s.lng()};
+     })];
+     console.log("---------stepScopes-----", Coordinate);
+     console.log("------------------------");
+     
+     }else{
     
+    console.log("------------------------");
     console.log("ルートの指示:", step.instructions);
     console.log("ステップの開始地点:", step.start_location.lat(), step.start_location.lng());
     console.log("ステップの終了地点:", step.end_location.lat(), step.end_location.lng());
     console.log("ステップの所要時間:", step.duration.text);
     console.log("ステップの距離:", step.distance.text);
     console.log("LatLngs の配列:", step.path);
+
+ 	var instructionsHTML = step.instructions;
+    var instructions = document.createElement('p');
+    instructions.innerHTML = instructionsHTML;
+    newDiv.appendChild(instructions);
+
+	// 新しい段落要素を生成
+	const duration = document.createElement('p');
+	// テキストコンテンツに変数の値を含めて段落要素に設定
+	duration.textContent = `${step.duration.text}`;
+	newDiv.appendChild(duration);
+
+	const distance = document.createElement('p');
+	distance.textContent = `${step.distance.text}`;
+	newDiv.appendChild(distance);
+
+	const hrElement = document.createElement('hr');
+	newDiv.appendChild(hrElement);
+	document.getElementById('aaa').appendChild(newDiv);
+
+ 	Coordinate = [...Coordinate, ...step.path.map(s=>{
+		return {lat: s.lat(), lng: s.lng()};
+    })];
+    console.log("---------stepScopes-----", Coordinate);
     console.log("------------------------");
-    
-    const stepScopes = step.path.map(s=>{
-		console.log(s);
-		const scope = s.lat().Scopes[0];
-		return {lat: scope.e, lng:scope.f}
-	});
-    console.log("---------stepScopes-----", stepScopes);
-    console.log("---------stepScopes-----");;
-	
-    	
-// 新しい段落要素を生成
-const duration = document.createElement('p');
-// テキストコンテンツに変数の値を含めて段落要素に設定
-duration.textContent = `${step.duration.text}`;
-newDiv.appendChild(duration);
 
-
-
-const distance = document.createElement('p');
-distance.textContent = `${step.distance.text}`;
-newDiv.appendChild(distance);
-const hrElement = document.createElement('hr');
-newDiv.appendChild(hrElement);
-document.getElementById('aaa').appendChild(newDiv);
-
-    // 最後のステップの場合、終了地点も配列に追加
-    if (index === stepsArray.length - 1) {
-      var latLngEnd = { lat: step.end_location.lat(), lng: step.end_location.lng() };
-      startLatLngArray.push([latLngEnd.lat, latLngEnd.lng]);
-    }
+	}
+   
   });
 });
 
@@ -397,9 +490,9 @@ document.getElementById('aaa').appendChild(newDiv);
 console.log("開始地点のlatとlngを含む配列:", startLatLngArray);
 
 var duration = response.routes[0].legs[0].duration.text;
-const newParagraph4 = document.createElement('p');
-newParagraph4.textContent = `${duration}`;
-document.getElementById('relayContainer4').appendChild(newParagraph4);
+const allduration = document.createElement('p');
+allduration.textContent = `${duration}`;
+document.getElementById('allduration').appendChild(allduration);
 
 var fare = response.routes[0].fare;
 var Fare;
@@ -410,9 +503,9 @@ if (fare) {
   console.log('料金情報がありません。');
   Fare = ("料金情報がありません。");
 }
-const newParagraph5 = document.createElement('p');
-newParagraph5.textContent = `${Fare}`;
-document.getElementById('relayContainer5').appendChild(newParagraph5);
+const fare2 = document.createElement('p');
+fare2.textContent = `${Fare}`;
+document.getElementById('fare').appendChild(fare2);
     })
     .catch((e) => {
             console.error("Directions request failed:", e);
@@ -498,84 +591,164 @@ route.legs.forEach(function (leg) {
 	var a = { lat: step.start_location.lat(), lng: step.start_location.lng() };
     // 開始地点のlatとlngを配列に追加
     startLatLngArray.push([latLngStart.lat, latLngStart.lng]);
-    
-    // HTML形式で指示を取得
-    var instructionsHTML = step.instructions;
-    var instructions = document.createElement('p');
-    instructions.innerHTML = instructionsHTML;
-    newDiv.appendChild(instructions);
-    
+  
+   // 最後のステップの場合、終了地点も配列に追加
+    if (index === stepsArray.length - 1) {
+      var latLngEnd = { lat: step.end_location.lat(), lng: step.end_location.lng() };
+      startLatLngArray.push([latLngEnd.lat, latLngEnd.lng]);
+    }
+  
+  
     if (step.travel_mode === "TRANSIT") {
       // 交通機関に関する詳細情報
+      console.log("------------------------");
+      console.log("ルートの指示:", step.instructions);
       console.log("乗車手段:", step.transit.line.vehicle.type);
       console.log("路線名:", step.transit.line.short_name);
       console.log("行き先:", step.transit.headsign);
       console.log("乗車するバス・電車の番線:", step.transit.line.departure_track);
       console.log("出発時間:", step.transit.departure_time.value);
       console.log("到着時間:", step.transit.arrival_time.value);
-
+      console.log("ステップの開始地点:", step.start_location.lat(), step.start_location.lng());
+      console.log("ステップの終了地点:", step.end_location.lat(), step.end_location.lng());
+      console.log("ステップの所要時間:", step.duration.text);
+      console.log("ステップの距離:", step.distance.text);
+      console.log("LatLngs の配列:", step.path);
+      
+ 
+ 	  // HTML形式で指示を取得
+      var instructionsHTML = step.instructions;
+      var instructions = document.createElement('p');
+      instructions.innerHTML = instructionsHTML;
+      newDiv.appendChild(instructions);
+ 
+      const typeh3 = document.createElement('h3');
+      typeh3.textContent = `交通機関名`;
+      newDiv.appendChild(typeh3);
       const type = document.createElement('p');
       type.textContent = `${step.transit.line.vehicle.type}`;
-	  newDiv.appendChild(type);
-	  
+      if(type.textContent != "undefined"){
+		   newDiv.appendChild(type);
+	  }else{
+		  type.textContent = "情報がありません";
+		  newDiv.appendChild(type);
+	  }
+	 
+	  const short_nameh3 = document.createElement('h3');
+      short_nameh3.textContent = `路線名`;
+      newDiv.appendChild(short_nameh3);
       const short_name = document.createElement('p');
       short_name.textContent = `${step.transit.line.short_name}`;
-	  newDiv.appendChild(short_name);
+      if(short_name.textContent != "undefined"){
+		   newDiv.appendChild(short_name);
+	  }else{
+		  short_name.textContent = "情報がありません";
+		  newDiv.appendChild(short_name);
+	  }
 	
+	  const headsignh3 = document.createElement('h3');
+      headsignh3.textContent = `行き先`;
+      newDiv.appendChild(headsignh3);
       const headsign = document.createElement('p');
       headsign.textContent = `${step.transit.headsign}`;
-	  newDiv.appendChild(headsign);	 
+	  if(headsign.textContent != "undefined"){
+		   newDiv.appendChild(headsign);
+	  }else{
+		  headsign.textContent = "情報がありません";
+		  newDiv.appendChild(headsign);
+	  }	 
 
+	  const departure_trackh3 = document.createElement('h3');
+      departure_trackh3.textContent = `番線`;
+      newDiv.appendChild(departure_trackh3);
       const departure_track = document.createElement('p');
       departure_track.textContent = `${step.transit.line.departure_track}`;
-	  newDiv.appendChild(departure_track);
+	  if(departure_track.textContent != "undefined"){
+		   newDiv.appendChild(departure_track);
+	  }else{
+		  departure_track.textContent = "情報がありません";
+		  newDiv.appendChild(departure_track);
+	  }
 	  
+	  const departure_timeh3 = document.createElement('h3');
+      departure_timeh3.textContent = `出発時間`;
+      newDiv.appendChild(departure_timeh3);
 	  const departure_time = document.createElement('p');
       departure_time.textContent = `${step.transit.departure_time.value}`;
-	  newDiv.appendChild(departure_time);
+	  if(departure_time.textContent != "undefined"){
+		   newDiv.appendChild(departure_time);
+	  }else{
+		  departure_time.textContent = "情報がありません";
+		  newDiv.appendChild(departure_time);
+	  }
 
+	  const arrival_timeh3 = document.createElement('h3');
+      arrival_timeh3.textContent = `到着時間`;
+      newDiv.appendChild(arrival_timeh3);
 	  const arrival_time = document.createElement('p');
 	  arrival_time.textContent = `${step.transit.arrival_time.value}`;
-	  newDiv.appendChild(arrival_time);
+	  if(arrival_time.textContent != "undefined"){
+		   newDiv.appendChild(arrival_time);
+	  }else{
+		  arrival_time.textContent = "情報がありません";
+		  newDiv.appendChild(arrival_time);
+	  }
 
-    }
+	  const duration = document.createElement('p');
+	  duration.textContent = `${step.duration.text}`;
+	  newDiv.appendChild(duration);
+
+	  const distance = document.createElement('p');
+	  distance.textContent = `${step.distance.text}`;
+	  newDiv.appendChild(distance);
+
+	  const hrElement = document.createElement('hr');
+	  newDiv.appendChild(hrElement);
+	  document.getElementById('aaa').appendChild(newDiv);
+
+	  Coordinate = [...Coordinate, ...step.path.map(s=>{
+		return {lat: s.lat(), lng: s.lng()};
+     })];
+     console.log("---------stepScopes-----", Coordinate);
+     console.log("------------------------");
+     
+     }else{
     
+    console.log("------------------------");
     console.log("ルートの指示:", step.instructions);
     console.log("ステップの開始地点:", step.start_location.lat(), step.start_location.lng());
     console.log("ステップの終了地点:", step.end_location.lat(), step.end_location.lng());
     console.log("ステップの所要時間:", step.duration.text);
     console.log("ステップの距離:", step.distance.text);
     console.log("LatLngs の配列:", step.path);
-    console.log("------------------------");
-    	
-    Coordinate = [...Coordinate, ...step.path.map(s=>{
+
+ 	var instructionsHTML = step.instructions;
+    var instructions = document.createElement('p');
+    instructions.innerHTML = instructionsHTML;
+    newDiv.appendChild(instructions);
+
+	// 新しい段落要素を生成
+	const duration = document.createElement('p');
+	// テキストコンテンツに変数の値を含めて段落要素に設定
+	duration.textContent = `${step.duration.text}`;
+	newDiv.appendChild(duration);
+
+	const distance = document.createElement('p');
+	distance.textContent = `${step.distance.text}`;
+	newDiv.appendChild(distance);
+
+	const hrElement = document.createElement('hr');
+	newDiv.appendChild(hrElement);
+	document.getElementById('aaa').appendChild(newDiv);
+
+ 	Coordinate = [...Coordinate, ...step.path.map(s=>{
 		return {lat: s.lat(), lng: s.lng()};
     })];
     console.log("---------stepScopes-----", Coordinate);
-    console.log("---------stepScopes-----");
+    console.log("------------------------");
 
-//Coordinate.[0].lat
-
-// 新しい段落要素を生成
-const duration = document.createElement('p');
-// テキストコンテンツに変数の値を含めて段落要素に設定
-duration.textContent = `${step.duration.text}`;
-newDiv.appendChild(duration);
-
-
-
-const distance = document.createElement('p');
-distance.textContent = `${step.distance.text}`;
-newDiv.appendChild(distance);
-const hrElement = document.createElement('hr');
-newDiv.appendChild(hrElement);
-document.getElementById('aaa').appendChild(newDiv);
-
-    // 最後のステップの場合、終了地点も配列に追加
-    if (index === stepsArray.length - 1) {
-      var latLngEnd = { lat: step.end_location.lat(), lng: step.end_location.lng() };
-      startLatLngArray.push([latLngEnd.lat, latLngEnd.lng]);
-    }
+	}
+   
   });
 });
 
@@ -628,21 +801,20 @@ function loadGoogleMapsScript() {
         xhr.send();
     });
 </script>
+<form >
 
-
-	
-	<div id="aaa">
+		<button onclick="sendValueToController()">ストリートビューに移動</button>
+		
+		<input type="button" value="検索画面に戻る" onclick="location.href='/search'">
+		
+		<div id="aaa">
         </div>
   
-    	<div id="allduration"><h2>所要時間</h2>
+    	<div id="allduration"><h3>所要時間</h3>
 		</div>
 		
-		<div id="fare">(11料金)
+		<div id="fare"><h3>料金</h3>
 		</div>
-		
-		
-		<button onclick="sendValueToController()">1111</button>
 	
-
 </body>
 </html>

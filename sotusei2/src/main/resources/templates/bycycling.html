@@ -81,6 +81,27 @@ body {
 </script>
 
 <script>
+	var Coordinate = [];
+	
+	function sendValueToController() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/streetview", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                console.log("Request successful");
+                 // レスポンスのHTMLを取得
+      			//var html = xhr.responseText;
+      			// ページ全体を書き換え
+      			//document.documentElement.innerHTML = html;
+      			window.location.href = '/session2';
+            } else {
+                console.error("Request failed");
+            }
+        };
+        xhr.send(JSON.stringify({ view: Coordinate }));
+	}
+	
          function initMap() {
 			 const root = {
 				 
@@ -269,6 +290,11 @@ route.legs.forEach(function (leg) {
     console.log("LatLngs の配列:", step.path);
     console.log("------------------------");
     
+    Coordinate = [...Coordinate, ...step.path.map(s=>{
+		return {lat: s.lat(), lng: s.lng()};
+    })];
+    console.log("---------stepScopes-----", Coordinate);
+    console.log("---------stepScopes-----");
       
     // HTML形式で指示を取得
     var instructionsHTML = step.instructions;
@@ -282,11 +308,10 @@ const duration = document.createElement('p');
 duration.textContent = `${step.duration.text}`;
 newDiv.appendChild(duration);
 
-
-
 const distance = document.createElement('p');
 distance.textContent = `${step.distance.text}`;
 newDiv.appendChild(distance);
+
 const hrElement = document.createElement('hr');
 newDiv.appendChild(hrElement);
 document.getElementById('aaa').appendChild(newDiv);
@@ -300,10 +325,11 @@ document.getElementById('aaa').appendChild(newDiv);
 
 // 開始地点のlatとlngを含む配列をコンソールに表示
 console.log("開始地点のlatとlngを含む配列:", startLatLngArray);
+
 var duration = response.routes[0].legs[0].duration.text;
-const newParagraph4 = document.createElement('p');
-newParagraph4.textContent = `${duration}`;
-document.getElementById('relayContainer4').appendChild(newParagraph4);
+const allduration = document.createElement('p');
+allduration.textContent = `${duration}`;
+document.getElementById('allduration').appendChild(allduration);
     })
     .catch((e) => {
             console.error("Directions request failed:", e);
@@ -357,6 +383,11 @@ route.legs.forEach(function (leg) {
     console.log("LatLngs の配列:", step.path);
     console.log("------------------------");
     
+    Coordinate = [...Coordinate, ...step.path.map(s=>{
+		return {lat: s.lat(), lng: s.lng()};
+    })];
+    console.log("---------stepScopes-----", Coordinate);
+    console.log("---------stepScopes-----");
       
     // HTML形式で指示を取得
     var instructionsHTML = step.instructions;
@@ -370,11 +401,10 @@ const duration = document.createElement('p');
 duration.textContent = `${step.duration.text}`;
 newDiv.appendChild(duration);
 
-
-
 const distance = document.createElement('p');
 distance.textContent = `${step.distance.text}`;
 newDiv.appendChild(distance);
+
 const hrElement = document.createElement('hr');
 newDiv.appendChild(hrElement);
 document.getElementById('aaa').appendChild(newDiv);
@@ -419,7 +449,9 @@ function loadGoogleMapsScript() {
         xhr.send();
     });
 </script>
-
+<button onclick="sendValueToController()">ストリートビューに移動</button>
+	
+	<input type="button" value="検索画面に戻る" onclick="location.href='/search'">
 	
 	 	<div id="aaa">
         </div>

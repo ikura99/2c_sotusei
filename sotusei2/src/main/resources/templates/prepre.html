@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,100 +13,163 @@
             text-align: center;
             display: flex;
             flex-direction: column;
+            font-size: 100%;
         }
 
         label {
             margin-top: 8px;
+            font-size: 100%;
         }
 
         button {
-            width: 50%;
+            width: 90%;
             height: 2.5em;
-            margin: 8px auto;
-            padding: 4px 0;
+            margin: 0px;
+            padding: 4px;
             border-radius: 4px;
             background-color: blue;
             color: white;
+            font-size: 100%;
         }
 
         button:hover {
             opacity: .7;
         }
+        
+        #deleteButton {
+            width: 50%;
+            height: 2.0em;
+            margin: 0px;
+            padding: 4px;
+            border-radius: 4px;
+            background-color: blue;
+            color: white;
+            font-size: 100%;
+        }
+        
+        body{
+            display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        font-size: 100%;
+        }
+        
+        input[name="start"],input[name="goal"] {
+        width: 150%; 
+        padding: 4px; 
+        font-size: 100%;
+        }
+       
+       .relay-input {
+		width: 145%; 
+        padding: 4px; 
+        font-size: 100%;
+}
+       
+       input[type="submit"] {
+        width: 90%; /* Adjusted width for the submit button */
+        height: 2em;
+        margin: 16px auto; /* Added margin to center the submit button */
+        padding: 0px;
+        border-radius: 5px;
+        background-color: #6699FF;
+        color: black;
+}
     </style>
 </head>
+
 <body>
 
-<form action="/result" method="post" id="myForm">
-    <h2>開始地点</h2>
-    <input type="text" name="start">
-    <div id="relayContainer">
-        <button id="addPointButton">中継地点を増やす</button>
-    </div>
-    <h2>終了地点</h2>
-    <input type="text" name="goal">
-    <br>
-    <h2>出発時間</h2>
-    <input type="datetime-local" name="starttime">
-    <br>
-    <h2>到着時間</h2>
-    <input type="datetime-local" name="goaltime">
-    <br>
-    <input type="submit" value="検索する">
-</form>
+    <form action="/result" method="post" id="myForm">
+        <h2>開始地点</h2>
+        <input type="text" name="start">
+        <div id="relayContainer">
+            <button id="addPointButton">中継地点を増やす</button>
+        </div>
+        <h2>終了地点</h2>
+        <input type="text" name="goal">
+        <br>
+        <h2>出発時間</h2>
+        <input type="datetime-local" name="starttime">
+        <br>
+        <h2>到着時間</h2>
+        <input type="datetime-local" name="goaltime">
+        <br>
+        <input type="submit" value="検索する">
+    </form>
 
-<script>
-    const Relay = [];
-    let relayIndex = 1;
+    <script>
+        const Relay = [];
+        let relayIndex = 1;
 
-    document.getElementById('addPointButton').addEventListener('click', function (event) {
-        event.preventDefault();
+        document.getElementById('addPointButton').addEventListener('click', function (event) {
+            event.preventDefault();
 
-        const newInput = document.createElement('input');
-        newInput.type = 'text';
-        newInput.classList.add('relay-input');
+            const newInput = document.createElement('input');
+            newInput.type = 'text';
+            newInput.classList.add('relay-input');
 
-        const newLabel = document.createElement('label');
-        newLabel.textContent = `中継地点(${relayIndex})：`;
-        newLabel.appendChild(newInput);
-
-        document.getElementById('relayContainer').appendChild(newLabel);
-
-        Relay.push(newInput);
-
-        relayIndex++;
-
-    });
+            const newLabel = document.createElement('label');
+            newLabel.textContent = `(${relayIndex})：`;
+            newLabel.appendChild(newInput);
 
 
+// Add delete button
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = '削除';
+        deleteButton.setAttribute('id', 'deleteButton');
+        deleteButton.addEventListener('click', function() {
+            newLabel.remove(); // Remove the whole label (including input and button)
+            const index = Relay.indexOf(newInput);
+            if (index !== -1) {
+                Relay.splice(index, 1); // Remove from Relay array
+            }
+            relayIndex--; // Decrement index
+        });
+        newLabel.appendChild(deleteButton);
+        
 
-    document.getElementById('myForm').addEventListener('submit', function (event) {
-    event.preventDefault();//送信されないようにしている this.submit();で代わりに送信
+            document.getElementById('relayContainer').appendChild(newLabel);
 
-    // relay-inputから値を所得し、Relay配列に値を格納
-    document.querySelectorAll('.relay-input').forEach((input, index) => {
-        Relay[index].value = input.value;
-    });
-    
+            Relay.push(newInput);
 
-    // 隠れた要素の作成
-    Relay.forEach((relayInput, index) => {
-        const hiddenInput = document.createElement('input');//input要素の作成
-        hiddenInput.type = 'hidden';//HTML画面に出ないようにしている
-        hiddenInput.name = 'relay[]'; //  @RequestParamアノテーションに一致するように名前を設定
-        hiddenInput.value = relayInput.value;
-        document.getElementById('myForm').appendChild(hiddenInput);
-        //document.getElementById('myForm')を使用して、HTML内の'id'が 'myForm'と設定されたフォーム要素にアクセスし、
-        //そのフォームに対して新しく作成した隠れた入力要素を追加します
-    });
+            relayIndex++;
 
-    
-    // 送信
-    this.submit();
+        });
 
-    // Relayの初期化
-    Relay.length = 0;
-    relayIndex = 1; // 配列の添え字の初期化(1に設定)
-});
-</script>
+
+
+        document.getElementById('myForm').addEventListener('submit', function (event) {
+            event.preventDefault();//送信されないようにしている this.submit();で代わりに送信
+
+            // relay-inputから値を所得し、Relay配列に値を格納
+            document.querySelectorAll('.relay-input').forEach((input, index) => {
+                Relay[index].value = input.value;
+            });
+
+
+            // 隠れた要素の作成
+            Relay.forEach((relayInput, index) => {
+                const hiddenInput = document.createElement('input');//input要素の作成
+                hiddenInput.type = 'hidden';//HTML画面に出ないようにしている
+                hiddenInput.name = 'relay[]'; //  @RequestParamアノテーションに一致するように名前を設定
+                hiddenInput.value = relayInput.value;
+                document.getElementById('myForm').appendChild(hiddenInput);
+                //document.getElementById('myForm')を使用して、HTML内の'id'が 'myForm'と設定されたフォーム要素にアクセスし、
+                //そのフォームに対して新しく作成した隠れた入力要素を追加します
+            });
+
+
+            // 送信
+            this.submit();
+
+            // Relayの初期化
+            Relay.length = 0;
+            relayIndex = 1; // 配列の添え字の初期化(1に設定)
+        });
+    </script>
 </body>
-</html>	
+
+</html>

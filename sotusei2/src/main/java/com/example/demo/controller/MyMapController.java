@@ -65,8 +65,8 @@ public class MyMapController {
 
 //今いじってる
 //現在点の取得
-	@RequestMapping(path = "/mymap5", method = RequestMethod.GET)
-	public String mymap5() {
+	@RequestMapping(path = "/search", method = RequestMethod.GET)
+	public String search() {
 		return "prepre";
 	}
 	@RequestMapping(path = "/result", method = RequestMethod.POST)
@@ -187,7 +187,7 @@ public class MyMapController {
 	}
 	
 	@RequestMapping(path = "/streetview", method = RequestMethod.POST)
-	public void streetview(HttpSession session, Model model, @RequestBody Map<String, List<Map<String,Double>>> coordinates) {
+	public void session(HttpSession session, Model model, @RequestBody Map<String, List<Map<String,Double>>> coordinates) {
 		
 		//model.addAttribute("Coordinates", coordinates);
 		session.setAttribute("stacoordinatesrt", coordinates);
@@ -198,12 +198,12 @@ public class MyMapController {
 	
 	@RequestMapping(path = "/session", method = RequestMethod.GET)
 	@ResponseBody
-	public  Map<String, List<Map<String,Double>>> session(HttpSession session) {
+	public  Map<String, List<Map<String,Double>>> session2(HttpSession session) {
 		return ( Map<String, List<Map<String,Double>>>) session.getAttribute("stacoordinatesrt");
 	}
 	
 	@RequestMapping(path = "/session2", method = RequestMethod.GET)
-	public  String session2() {
+	public  String streetview() {
 		return "view";
 	}
 	
